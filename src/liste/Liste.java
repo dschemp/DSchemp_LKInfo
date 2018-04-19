@@ -5,8 +5,7 @@ import org.w3c.dom.html.HTMLIsIndexElement;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Liste {
-
-    private ListElement head;
+    public ListElement head;
 
     public void AddToEnd(int content) {
         if (head == null)
@@ -26,9 +25,12 @@ public class Liste {
         ListElement indexElement = GetElement(index);
         ListElement lastIndexElement = indexElement.LastElement;
 
-        ListElement insertElement = new ListElement(content, lastIndexElement, indexElement);
+        ListElement insertElement = new ListElement(content, indexElement, lastIndexElement);
+
         lastIndexElement.NextElement = insertElement;
         indexElement.LastElement = insertElement;
+        insertElement.LastElement = lastIndexElement;
+        insertElement.NextElement = indexElement;
     }
 
     public int Get(int index) {
