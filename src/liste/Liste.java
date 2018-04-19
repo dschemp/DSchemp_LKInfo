@@ -1,68 +1,47 @@
 package liste;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+import org.w3c.dom.html.HTMLIsIndexElement;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Liste {
 
     private ListElement head;
 
-    private ListElement FindLastElement() {
-        ListElement end = head;
-        while (end.nextElement != null) {
-            end = end.nextElement;
-        }
-        return end;
-    }
-
-    private ListElement FindBeforeLastElement() {
-        ListElement end = head;
-        while(end.nextElement.nextElement != null) {
-            end = end.nextElement;
-        }
-        return end;
-    }
-
     public void AddToEnd(int content) {
-        ListElement element = new ListElement(content, null);
-
         if (head == null)
-            head = element;
+            head = new ListElement(content, null, null);
         else {
-            ListElement end = FindLastElement();
-            end.nextElement = element;
+            ListElement lastElement = FindLastElement();
+            lastElement.NextElement = new ListElement(content, null, lastElement);
         }
     }
 
     public void RemoveEnd() {
-        int size = GetSize();
-        switch (size) {
-            case 0:
-                return;
-            case 1:
-                head = null;
-                break;
-            default:
-                ListElement beforeLast = FindBeforeLastElement();
-                beforeLast.nextElement = null;
-                break;
-        }
+        ListElement lastElement = FindLastElement();
+        lastElement.LastElement.NextElement = null;
     }
 
     public void Insert(int content, int index) {
-        throw new NotImplementedException();
+        ListElement indexElement = GetElement(index);
+        ListElement lastIndexElement = indexElement.LastElement;
+
+        ListElement insertElement = new ListElement(content, lastIndexElement, indexElement);
+        lastIndexElement.NextElement = insertElement;
+        indexElement.LastElement = insertElement;
     }
 
     public int Get(int index) {
         if (index >= GetSize())
             throw new IndexOutOfBoundsException();
-        else {
-            int length = 0;
-            ListElement end = head;
-            while (length != index) {
-                end = end.nextElement;
-            }
-            return end.content;
+
+        ListElement end = head;
+        int i = 0;
+        while (i != index) {
+            end = end.NextElement;
+            i++;
         }
+        return end.Content;
     }
 
     public void Sort() {
@@ -74,11 +53,35 @@ public class Liste {
 
         int length = 0;
         while (end != null) {
-            end = end.nextElement;
+            end = end.NextElement;
             length++;
         }
 
         return length;
+    }
+
+    private ListElement FindLastElement() {
+        ListElement end = head;
+        while (true) {
+            if (end == null)
+                return null;
+            else if (end.NextElement == null)
+                return end;
+            end = end.NextElement;
+        }
+    }
+
+    private ListElement GetElement(int index) {
+        if (index >= GetSize())
+            throw new IndexOutOfBoundsException();
+
+        ListElement end = head;
+        int i = 0;
+        while (i != index) {
+            end = end.NextElement;
+            i++;
+        }
+        return end;
     }
 
 }
