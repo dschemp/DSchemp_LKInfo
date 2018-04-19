@@ -7,7 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class Liste {
     public ListElement head;
 
-    public void AddToEnd(int content) {
+    public void Add(int content) {
         if (head == null)
             head = new ListElement(content, null, null);
         else {
@@ -24,6 +24,7 @@ public class Liste {
         ListElement lastDeleteElement = deleteElement.LastElement;
         ListElement nextDeleteElement = deleteElement.NextElement;
 
+        // TODO: NullPointerException
         lastDeleteElement.NextElement = nextDeleteElement;
         nextDeleteElement.LastElement = lastDeleteElement;
 
@@ -60,6 +61,21 @@ public class Liste {
             i++;
         }
         return end.Content;
+    }
+
+    public void Swap(int index_one, int index_two) {
+        int listSize = GetSize();
+        if (index_one >= listSize || index_two >= listSize)
+            throw new IndexOutOfBoundsException();
+
+        int content_one = Get(index_one);
+        int content_two = Get(index_two);
+
+        this.Remove(index_one);
+        this.Remove(index_two);
+
+        this.Insert(content_one, index_two);
+        this.Insert(content_two, index_one);
     }
 
     public void Sort() {
