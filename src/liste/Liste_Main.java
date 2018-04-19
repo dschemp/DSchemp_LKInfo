@@ -12,9 +12,9 @@ public class Liste_Main {
         System.out.println(list.Get(1));
         System.out.println(list.Get(0));
 
-        System.out.println(list.GetSize());
+        System.out.println("Size: " + list.GetSize());
         list.Insert(123, 1);
-        System.out.println(list.GetSize());
+        System.out.println("Size: " + list.GetSize());
         System.out.println(list.Get(1));
     }
 
