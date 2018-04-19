@@ -16,6 +16,22 @@ public class Liste {
         }
     }
 
+    public void Remove(int index) {
+        if (index >= GetSize())
+            throw new IndexOutOfBoundsException();
+
+        ListElement deleteElement = GetElement(index);
+        ListElement lastDeleteElement = deleteElement.LastElement;
+        ListElement nextDeleteElement = deleteElement.NextElement;
+
+        lastDeleteElement.NextElement = nextDeleteElement;
+        nextDeleteElement.LastElement = lastDeleteElement;
+
+        lastDeleteElement.NextElement = nextDeleteElement;
+        nextDeleteElement.LastElement = lastDeleteElement;
+    }
+
+
     public void RemoveEnd() {
         ListElement lastElement = FindLastElement();
         lastElement.LastElement.NextElement = null;
