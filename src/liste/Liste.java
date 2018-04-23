@@ -1,13 +1,19 @@
 package liste;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-import org.w3c.dom.html.HTMLIsIndexElement;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Liste {
     public ListElement head;
 
-    public void Add(int content) {
+    public Liste() { }
+
+    public Liste(int[] array) {
+        for (int x : array) {
+            this.add(x);
+        }
+    }
+
+    public void add(int content) {
         if (head == null)
             head = new ListElement(content, null, null);
         else {
@@ -15,30 +21,7 @@ public class Liste {
             lastElement.NextElement = new ListElement(content, null, lastElement);
         }
     }
-
-    public void Remove(int index) {
-        if (index >= GetSize())
-            throw new IndexOutOfBoundsException();
-
-        ListElement deleteElement = GetElement(index);
-        ListElement lastDeleteElement = deleteElement.LastElement;
-        ListElement nextDeleteElement = deleteElement.NextElement;
-
-        // TODO: NullPointerException
-        lastDeleteElement.NextElement = nextDeleteElement;
-        nextDeleteElement.LastElement = lastDeleteElement;
-
-        lastDeleteElement.NextElement = nextDeleteElement;
-        nextDeleteElement.LastElement = lastDeleteElement;
-    }
-
-
-    public void RemoveEnd() {
-        ListElement lastElement = FindLastElement();
-        lastElement.LastElement.NextElement = null;
-    }
-
-    public void Insert(int content, int index) {
+    public void add(int content, int index) {
         ListElement indexElement = GetElement(index);
         ListElement lastIndexElement = indexElement.LastElement;
 
@@ -50,8 +33,30 @@ public class Liste {
         insertElement.NextElement = indexElement;
     }
 
-    public int Get(int index) {
-        if (index >= GetSize())
+    public void remove(int index) {
+        if (index >= this.getSize())
+            throw new IndexOutOfBoundsException();
+
+        ListElement deleteElement = GetElement(index);
+        ListElement lastDeleteElement = deleteElement.LastElement;
+        ListElement nextDeleteElement = deleteElement.NextElement;
+
+        // TODO: NullPointerException
+        lastDeleteElement.NextElement = nextDeleteElement;
+        nextDeleteElement.LastElement = lastDeleteElement;
+
+        // TODO: NullPointerException
+        lastDeleteElement.NextElement = nextDeleteElement;
+        nextDeleteElement.LastElement = lastDeleteElement;
+    }
+
+    public void remove() {
+        ListElement lastElement = FindLastElement();
+        lastElement.LastElement.NextElement = null;
+    }
+
+    public int getAtIndex(int index) {
+        if (index >= this.getSize())
             throw new IndexOutOfBoundsException();
 
         ListElement end = head;
@@ -63,26 +68,23 @@ public class Liste {
         return end.Content;
     }
 
-    public void Swap(int index_one, int index_two) {
-        int listSize = GetSize();
+    public void swap(int index_one, int index_two) {
+        int listSize = this.getSize();
         if (index_one >= listSize || index_two >= listSize)
             throw new IndexOutOfBoundsException();
 
-        int content_one = Get(index_one);
-        int content_two = Get(index_two);
+        int content_one = getAtIndex(index_one);
+        int content_two = getAtIndex(index_two);
 
-        this.Remove(index_one);
-        this.Remove(index_two);
-
-        this.Insert(content_one, index_two);
-        this.Insert(content_two, index_one);
+        this.GetElement(index_one).Content = content_two;
+        this.GetElement(index_two).Content = content_one;
     }
 
-    public void Sort() {
+    public void sort() {
         throw new NotImplementedException();
     }
 
-    public int GetSize() {
+    public int getSize() {
         ListElement end = head;
 
         int length = 0;
@@ -92,6 +94,13 @@ public class Liste {
         }
 
         return length;
+    }
+
+    public int[] toArray() {
+        int[] array = new int[this.getSize()];
+        for (int i = 0; i < array.length; i++)
+            array[i] = this.getAtIndex(i);
+        return array;
     }
 
     private ListElement FindLastElement() {
@@ -106,7 +115,7 @@ public class Liste {
     }
 
     private ListElement GetElement(int index) {
-        if (index >= GetSize())
+        if (index >= this.getSize())
             throw new IndexOutOfBoundsException();
 
         ListElement end = head;
