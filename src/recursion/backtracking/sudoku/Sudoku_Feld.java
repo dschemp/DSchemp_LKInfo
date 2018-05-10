@@ -68,18 +68,8 @@ public class Sudoku_Feld {
                 return false;
         }
 
-        // 3x3 Felder durchgehen // TODO: Verbessern nur Feld welches bearbeitet wurde
-        return  Check3x3(0, 2, 0, 2, zahl) && // oben links
-                Check3x3(3, 5, 0, 2, zahl) && // oben mitte
-                Check3x3(6, 8, 0, 2, zahl) && // oben rechts
-
-                Check3x3(0, 2, 3, 5, zahl) && // mitte links
-                Check3x3(3, 5, 3, 5, zahl) && // mitte mitte
-                Check3x3(6, 8, 3, 5, zahl) && // mitte rechts
-
-                Check3x3(0, 2, 6, 8, zahl) && // unten links
-                Check3x3(3, 5, 6, 8, zahl) && // unten mitte
-                Check3x3(6, 8, 6, 8, zahl);   // unten rechts
+        // 3x3 Feld durchgehen
+        return  Check3x3(x, y, zahl);
     }
 
 
@@ -99,9 +89,9 @@ public class Sudoku_Feld {
         return text;
     }
 
-    private boolean Check3x3(int x1, int x2, int y1, int y2, int zahl) {
-        for (int x = x1; x <= x2; x++) {
-            for (int y = y1; y <= y2; y++) {
+    private boolean Check3x3(int _x, int _y, int zahl) {
+        for (int x = _x-(_x%3); x < _x-(_x%3)+3; x++) {
+            for (int y = _y-(_y%3); y < _y-(_y%3)+3; y++) {
                 if (feld[x][y] == zahl)
                     return false;
             }
