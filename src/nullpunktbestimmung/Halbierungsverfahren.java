@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 public class Halbierungsverfahren {
 
-    public static double FindeNullstelle(double startWert, double endWert, Function<Double, Double> funktion, double accuracy, int maxCalcs) throws Exception {
+    public static double FindeNullstelle(double startWert, double endWert, Function<Double, Double> funktion, double accuracy, int maxCalcs) {
         // Anzahl Halbierungen
         int calcs = 0;
         // Mittelwert Start-Ende
@@ -30,8 +30,12 @@ public class Halbierungsverfahren {
 
         return middleX; // Nullstelle (Mittelwert) zurückgeben
     }
+
+    public static double FindeNullstelle(double startWert, double endWert, Function<Double, Double> funktion) {
+        return FindeNullstelle(startWert, endWert, funktion, 1e-3, (int)1e6);
+    }
     
-    public static double FindeNullstelle2(double startWert, double endWert, Function<Double, Double> funktion, double accuracy, int maxCalcs) throws Exception {
+    public static double FindeNullstelle2(double startWert, double endWert, Function<Double, Double> funktion, double accuracy, int maxCalcs) {
         // Anzahl an Halbierungen
         int calcs = 0;
         // Mittelwert für den Intervall Start-Ende
@@ -54,5 +58,8 @@ public class Halbierungsverfahren {
 
         return middleX; // Nullstelle (Mittelwert) zurückgeben
     }
-    
+
+    public static double FindeNullstelle2(double startWert, double endWert, Function<Double, Double> funktion) {
+        return FindeNullstelle2(startWert, endWert, funktion, 1e-3, (int)1e6);
+    }
 }

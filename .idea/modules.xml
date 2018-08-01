@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Java_IntelliJ_DSchemp.iml" filepath="$PROJECT_DIR$/Java_IntelliJ_DSchemp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DSchemp_LKInfo.iml" filepath="$PROJECT_DIR$/DSchemp_LKInfo.iml" />
     </modules>
   </component>
 </project>
