@@ -1,6 +1,6 @@
-package crypto;
+package crypto.cipher;
 
-public class CaesersCipher {
+public class Caesar {
 
     private static String Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
