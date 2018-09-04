@@ -1,10 +1,12 @@
 package crypto.cipher;
 
-public class Caesar {
+import interfaces.Cipherable;
+
+public class Caesar implements Cipherable {
 
     private static String Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public static String Encrypt(String data, int rotation) {
+    public String Encrypt(String data, int rotation) {
         data = data.trim().toUpperCase();
 
         String newData = "";
@@ -24,7 +26,7 @@ public class Caesar {
         return newData;
     }
 
-    public static String Decrypt(String encryptedData, int rotation) {
+    public String Decrypt(String encryptedData, int rotation) {
         encryptedData = encryptedData.trim().toUpperCase();
 
         String newData = "";
