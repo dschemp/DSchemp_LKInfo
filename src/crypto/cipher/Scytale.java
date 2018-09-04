@@ -58,7 +58,7 @@ public class Scytale implements Cipherable {
 
     @Override
     public String Decrypt(String encryptedText, int num) {
-        return null;
+        return "--- NOT IMPLEMENTED ---";
     }
 
 }
