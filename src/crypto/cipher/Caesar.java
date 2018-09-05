@@ -1,8 +1,6 @@
 package crypto.cipher;
 
-import interfaces.Cipherable;
-
-public class Caesar implements Cipherable {
+public class Caesar {
 
     private static String Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -26,6 +24,25 @@ public class Caesar implements Cipherable {
         return newData;
     }
 
+    public String Encrypt(String data, char key) {
+        if (!Character.isLetter(key))
+            throw new IllegalArgumentException("Key cannot be any other character than A-Za-z");
+
+        key = Character.toUpperCase(key);
+        int index = -1;
+        for (int i = 0; i < Alphabet.length(); i++) {
+            if (Alphabet.charAt(i) == key) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+            throw new IllegalArgumentException("Key is not in the alphabet.");
+
+        return Encrypt(data, index);
+    }
+
     public String Decrypt(String encryptedData, int rotation) {
         encryptedData = encryptedData.trim().toUpperCase();
 
@@ -45,5 +62,25 @@ public class Caesar implements Cipherable {
 
         return newData;
     }
+
+    public String Decrypt(String data, char key) {
+        if (!Character.isLetter(key))
+            throw new IllegalArgumentException("Key cannot be any other character than A-Za-z");
+
+        key = Character.toUpperCase(key);
+        int index = -1;
+        for (int i = 0; i < Alphabet.length(); i++) {
+            if (Alphabet.charAt(i) == key) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+            throw new IllegalArgumentException("Key is not in the alphabet.");
+
+        return Decrypt(data, index);
+    }
+
 
 }

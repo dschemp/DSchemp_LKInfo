@@ -1,10 +1,7 @@
 package crypto.cipher;
 
-import interfaces.Cipherable;
+public class Scytale {
 
-public class Scytale implements Cipherable {
-
-    @Override
     public String Encrypt(String data, int num) {
         String trimedData = "";
         for (char c : data.toCharArray()) {
@@ -56,9 +53,8 @@ public class Scytale implements Cipherable {
         return newData;
     }
 
-    @Override
     public String Decrypt(String encryptedText, int num) {
-        return "--- NOT IMPLEMENTED ---";
+        return null;
     }
 
 }

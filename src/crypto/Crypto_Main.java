@@ -1,22 +1,40 @@
 package crypto;
 
+import crypto.cipher.Caesar;
 import crypto.cipher.Scytale;
-import interfaces.Cipherable;
+import crypto.cipher.Vigenere;
 
 public class Crypto_Main {
 
     public static void main(String[] args) {
-        Cipherable cipher = new Scytale();
+        Caesar caesar = new Caesar();
+        Scytale scytale = new Scytale();
+        Vigenere vigenere = new Vigenere();
 
-        String data = "Halli Hallo, Wie geht's?";
-        int num = 11;
+        String data = "The quick brown fox jumps over the lazy dog";
+        int num = 13;
+        char key = 'N';
 
         System.out.println("TEXT:     " + data);
 
-        String c = cipher.Encrypt(data, num);
-        System.out.println("ENCRYPT:  " + c);
-        String d = cipher.Decrypt(c, num);
-        System.out.println("DECRYPT:  " + d);
+        /* ---------------------------------- */
+        System.out.println("--- Caesar ---");
+        String caesar_encrypt = caesar.Encrypt(data, key);
+        System.out.println("ENCRYPT:  " + caesar_encrypt);
+        String caesar_decrypt = caesar.Decrypt(caesar_encrypt, key);
+        System.out.println("DECRYPT:  " + caesar_decrypt);
+        /* ---------------------------------- */
+        System.out.println("--- Scytale ---");
+        String scytale_encrypt = scytale.Encrypt(data, num);
+        System.out.println("ENCRYPT:  " + scytale_encrypt);
+        String scytale_decrypt = scytale.Decrypt(scytale_encrypt, num);
+        System.out.println("DECRYPT:  " + scytale_decrypt);
+        // ----------------------------------
+        System.out.println("--- Vigenere ---");
+        String vigenere_encrypt = vigenere.Encrypt(data, num);
+        System.out.println("ENCRYPT:  " + vigenere_encrypt);
+        String vigenere_decrypt = vigenere.Decrypt(vigenere_encrypt, num);
+        System.out.println("DECRYPT:  " + vigenere_decrypt);
     }
 
 }
