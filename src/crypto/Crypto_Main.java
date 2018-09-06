@@ -14,6 +14,7 @@ public class Crypto_Main {
         String data = "The quick brown fox jumps over the lazy dog";
         int num = 13;
         char key = 'N';
+        String textKey = "KEY";
 
         System.out.println("TEXT:     " + data);
 
@@ -31,9 +32,9 @@ public class Crypto_Main {
         System.out.println("DECRYPT:  " + scytale_decrypt);
         // ----------------------------------
         System.out.println("--- Vigenere ---");
-        String vigenere_encrypt = vigenere.Encrypt(data, num);
+        String vigenere_encrypt = vigenere.Encrypt(data, textKey);
         System.out.println("ENCRYPT:  " + vigenere_encrypt);
-        String vigenere_decrypt = vigenere.Decrypt(vigenere_encrypt, num);
+        String vigenere_decrypt = vigenere.Decrypt(vigenere_encrypt, textKey);
         System.out.println("DECRYPT:  " + vigenere_decrypt);
     }
 
