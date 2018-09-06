@@ -43,7 +43,9 @@ public class AES {
          */
 
         // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
-        byte[][] b = new byte[Key.length / 4][4];
+        byte[][] block = new byte[Key.length / 4][4];
+
+
 
 
         return null;

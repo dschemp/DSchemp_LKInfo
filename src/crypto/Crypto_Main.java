@@ -7,13 +7,13 @@ import crypto.cipher.Vigenere;
 public class Crypto_Main {
 
     public static void main(String[] args) {
-        Caesar caesar = new Caesar();
-        Scytale scytale = new Scytale();
+        Caesar caesar     = new Caesar();
+        Scytale scytale   = new Scytale();
         Vigenere vigenere = new Vigenere();
 
-        String data = "The quick brown fox jumps over the lazy dog";
-        int num = 13;
-        char key = 'N';
+        String data    = "The quick brown fox jumps over the lazy dog";
+        int num        = 13;
+        char key       = 'N';
         String textKey = "KEY";
 
         System.out.println("TEXT:     " + data);
