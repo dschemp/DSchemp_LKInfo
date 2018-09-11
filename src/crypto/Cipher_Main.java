@@ -4,7 +4,7 @@ import crypto.cipher.Caesar;
 import crypto.cipher.Scytale;
 import crypto.cipher.Vigenere;
 
-public class Crypto_Main {
+public class Cipher_Main {
 
     public static void main(String[] args) {
         Caesar caesar     = new Caesar();

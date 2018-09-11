@@ -1,9 +1,33 @@
 package crypto.symmetric;
 
+import java.util.Random;
+
 public class AES {
+
+    //region Static Factory Methods
+    public static AES Create(byte[] key) {
+        return new AES(key);
+    }
+
+    public static AES CreateWithNewRandomKey(int bitLength) {
+        // Der Key darf nur aus 16- (128 bits), 24- (192 bits) oder 32- (256 bits) bytes bestehen
+        // Zulaessig: 128, 192 oder 256 Bit
+        if (bitLength != 128 && bitLength != 192 && bitLength != 256) {
+            throw new IllegalArgumentException("Key must be 128, 192 or 256 bits long");
+        }
+
+        Random rnd = new Random();
+        byte[] arr = new byte[bitLength / 8];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = (byte)rnd.nextInt(256);
+        }
+        return Create(arr);
+    }
+    //endregion
 
     private byte[] Key;
 
+    //region Key Getter and Setter
     public void setKey(byte[] key) {
         // Der Key darf nur aus 16- (128 bits), 24- (192 bits) oder 32- (256 bits) bytes bestehen
         // Zulaessig: 128, 192 oder 256 Bit
@@ -16,6 +40,7 @@ public class AES {
     public byte[] getKey() {
         return this.Key;
     }
+    //endregion
 
     public AES(byte[] key) {
         setKey(key);
@@ -42,10 +67,17 @@ public class AES {
             wendet Rijndael verschiedene Teile des erweiterten Originalschlüssels nacheinander auf den Klartext-Block an.
          */
 
+        // Als "WORD" kann der Datentyp _int_ benutzt werden, da dieser eine Groeße von 4 bytes (32 bits) besitzt.
+
         // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
         byte[][] state = new byte[4][4];
 
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
 
+            state[x][y] = data[i];
+        }
 
 
         return null;
