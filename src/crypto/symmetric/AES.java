@@ -46,6 +46,7 @@ public class AES {
         setKey(key);
     }
 
+    //region Encrypt / Decrypt Methods
     public byte[] Encrypt(byte[] data) {
         // Anzahl der Runden bei AES
         // max(b, k) | 128 | 192 | 256
@@ -86,5 +87,47 @@ public class AES {
     public byte[] Decrypt(byte[] encryptedData, byte[] key) {
         return null;
     }
+    //endregion
 
+    private byte[] AddRoundKey(byte[] state, byte[] key) {
+        return null;
+    }
+
+    //region Encryption Methods
+    private byte[] SubBytes(byte[] state) {
+        return null;
+    }
+
+    private byte[] ShiftRows(byte[] state) {
+        return null;
+    }
+
+    private byte[] MixColumns(byte[] state) {
+        return null;
+    }
+    //endregion
+
+    //region Decryption (Inverse) Methods
+    private byte[] InvSubBytes(byte[] state) {
+        return null;
+    }
+
+    private byte[] InvShiftRows(byte[] state) {
+        return null;
+    }
+
+    private byte[] InvMixColumns(byte[] state) {
+        return null;
+    }
+    //endregion
+
+    //region Key Expansion
+    private byte[] SubWord() {
+        return null;
+    }
+
+    private byte[] RotWord() {
+        return null;
+    }
+    //endregion
 }
