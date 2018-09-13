@@ -189,17 +189,7 @@ public class AES {
     }
 
     private byte[][] ShiftRows(byte[][] state) {
-
-        byte[][] localState = state;
-
-        for (int i = 0; i < 16; i++) {
-            int x = i / 4;
-            int y = i % 4;
-
-            localState[x][y] = state[(x+y)%4][y];
-        }
-
-        return localState;
+        return null;
     }
 
     private byte[][] MixColumns(byte[][] state) {
