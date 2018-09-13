@@ -36,13 +36,33 @@ public class AES {
         }
         this.Key = key;
 
-        byte[] expandedKey = ExpandKey(key);
+        //region Calculate Rounds and Cipher Key World Length
+        // Anzahl der Runden bei AES
+        // max(b, k) | 128 | 192 | 256
+        // Runden r	 | 10  | 12  | 14
+        // Die Bit-Längen sind in 32-bit-(4 byte)-Schritten angegeben
+        this.Rounds = (Key.length / 4) + 6;
+
+        this.CipherKeyWordLength = 4 * (Rounds + 1);
+        //endregion
+
+        //region When setting the key, generate the expanded key and place it in the variable
+        byte[] expandedKey = ExpandKey(key, key.length / 4);
         setExpandedKey(expandedKey);
+        //endregion
     }
 
     public byte[] getKey() {
         return this.Key;
     }
+    //endregion
+
+    //region Misc
+    private int Rounds;
+
+    private int CipherKeyWordLength;
+
+    private byte[] Rcon = { (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00 };
     //endregion
 
     //region Expanded Key + Getter and Setter
@@ -105,12 +125,6 @@ public class AES {
 
     //region Encrypt / Decrypt Methods
     private byte[] EncryptBlock(byte[] data) {
-        // Anzahl der Runden bei AES
-        // max(b, k) | 128 | 192 | 256
-        // Runden r	 | 10  | 12  | 14
-        // Die Bit-Längen sind in 32-bit-(4 byte)-Schritten angegeben
-        int rounds = (Key.length / 4) + 6;
-
         /*
             Arbeitsweise
             Rijndael ist eine als Substitutions-Permutations-Netzwerk entworfene Blockchiffre.
@@ -208,16 +222,116 @@ public class AES {
     //endregion
 
     //region Key Expansion
-    private byte[] ExpandKey(byte[] key) {
-        return null;
+    public byte[] ExpandKey(byte[] key, int Nk) {
+        byte[] words = new byte[4*4*(Rounds+1)];
+
+        byte[] temp = new byte[4]; // Word
+
+        int i = 0;
+
+        while (i < Nk) {
+            words[(4*i)+0] = key[(4*i) + 0];
+            words[(4*i)+1] = key[(4*i) + 1];
+            words[(4*i)+2] = key[(4*i) + 2];
+            words[(4*i)+3] = key[(4*i) + 3];
+            i++;
+        }
+
+        i = Nk;
+
+        while (i < 4 * (Rounds + 1)) {
+            temp[0] = words[(4*(i-1)) + 0];
+            temp[1] = words[(4*(i-1)) + 1];
+            temp[2] = words[(4*(i-1)) + 2];
+            temp[3] = words[(4*(i-1)) + 3];
+
+            if (i % Nk == 0) {
+                temp = RotWord(temp);
+                temp = SubWord(temp);
+                temp = CoefAdd(temp, Rcon(((byte) (i / Nk))));
+            }
+            else if (Nk > 6 && i % Nk == 4) {
+                temp = SubWord(temp);
+            }
+
+            words[4*i+0] = ((byte) (words[4 * (i - Nk) + 0] ^ temp[0]));
+            words[4*i+1] = ((byte) (words[4 * (i - Nk) + 1] ^ temp[1]));
+            words[4*i+2] = ((byte) (words[4 * (i - Nk) + 2] ^ temp[2]));
+            words[4*i+3] = ((byte) (words[4 * (i - Nk) + 3] ^ temp[3]));
+
+            i++;
+        }
+        return words;
     }
 
-    private byte[] SubWord() {
-        return null;
+    //region Adopted from another source
+    byte[] CoefAdd(byte[] word, byte[] word2) {
+        byte[] temp = new byte[4];
+
+        temp[0] = ((byte) (word[0] ^ word2[0]));
+        temp[1] = ((byte) (word[1] ^ word2[1]));
+        temp[2] = ((byte) (word[2] ^ word2[2]));
+        temp[3] = ((byte) (word[3] ^ word2[3]));
+
+        return temp;
     }
 
-    private byte[] RotWord() {
-        return null;
+    byte[] Rcon(byte i) {
+
+        if (i == 1) {
+            Rcon[0] = 0x01; // x^(1-1) = x^0 = 1
+        } else if (i > 1) {
+            Rcon[0] = 0x02;
+            i--;
+            while (i-1 > 0) {
+                Rcon[0] = BitwiseMultiplication(Rcon[0], (byte)0x02);
+                i--;
+            }
+        }
+
+        return Rcon;
+    }
+
+    byte BitwiseMultiplication(byte a, byte b) {
+
+        byte p = (byte)0x0, i= (byte)0x0, hbs = (byte)0x0;
+
+        for (i = 0; i < 8; i++) {
+            if ((b & (byte)0x1) != 0) {
+                p ^= a;
+            }
+
+            hbs = (byte)(a & 0x80);
+            a <<= 1;
+            if (hbs != 0) a ^= 0x1b; // 0000 0001 0001 1011
+            b >>= 1;
+        }
+
+        return p;
+    }
+    //endregion
+
+    private byte[] SubWord(byte[] word) {
+        for (int i = 0; i < word.length; i++) {
+            int firstNum = (word[i] & 0xF0) >> 4;
+            int secondNum = (word[i] & 0x0F);
+
+            word[i] = SBox[firstNum][secondNum];
+        }
+
+        return word;
+    }
+
+    private byte[] RotWord(byte[] word) {
+        byte first = word[0];
+
+        // Shift all bytes one byte to the left
+        word[0] = word[1];
+        word[1] = word[2];
+        word[2] = word[3];
+        word[3] = first;
+
+        return word;
     }
     //endregion
 }

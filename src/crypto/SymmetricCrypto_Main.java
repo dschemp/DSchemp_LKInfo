@@ -5,19 +5,33 @@ import crypto.symmetric.AES;
 public class SymmetricCrypto_Main {
 
     public static void main(String[] args) {
-        int[] intData = { 0x8c, 0xe6, 0xa4, 0xe8, 0x66, 0xa1, 0x87, 0x13, 0x70, 0xa4, 0x5a, 0xc1, 0xe3, 0x4a, 0xa6, 0x30 };
-        int[] intKey = { 0x2D, 0xF3, 0x22, 0x8B, 0xAE, 0x21, 0x49, 0x39, 0x02, 0xA2, 0x06, 0x42, 0x2C, 0x60, 0xC8, 0x1F };
-        byte[] binData = new byte[intData.length];
-        byte[] binKey = new byte[intKey.length];
-        for (int i = 0; i < intData.length; i++) {
-            binData[i] = (byte)intData[i];
-        }
-        for (int i = 0; i < intKey.length; i++) {
-            binKey[i] = (byte)intKey[i];
-        }
+        byte[] data = { (byte)0x8c, (byte)0xe6, (byte)0xa4, (byte)0xe8, (byte)0x66, (byte)0xa1, (byte)0x87, (byte)0x13, (byte)0x70, (byte)0xa4, (byte)0x5a, (byte)0xc1, (byte)0xe3, (byte)0x4a, (byte)0xa6, (byte)0x30 };
+        byte[] key = { (byte)0x2D, (byte)0xF3, (byte)0x22, (byte)0x8B, (byte)0xAE, (byte)0x21, (byte)0x49, (byte)0x39, (byte)0x02, (byte)0xA2, (byte)0x06, (byte)0x42, (byte)0x2C, (byte)0x60, (byte)0xC8, (byte)0x1F };
 
-        AES aes = AES.Create(binKey);
-        byte[] key = aes.getKey();
+        byte[] testKey = {
+                (byte)0x2b,
+                (byte)0x7e,
+                (byte)0x15,
+                (byte)0x16,
+                (byte)0x28,
+                (byte)0xae,
+                (byte)0xd2,
+                (byte)0xa6,
+                (byte)0xab,
+                (byte)0xf7,
+                (byte)0x15,
+                (byte)0x88,
+                (byte)0x09,
+                (byte)0xcf,
+                (byte)0x4f,
+                (byte)0x3c
+        };
+
+        AES aes = AES.Create(testKey);
+        byte[] aes_key = aes.getKey();
+
+        byte[] expandedKey = aes.getExpandedKey();
+
 
     }
 
