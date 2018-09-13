@@ -125,22 +125,6 @@ public class AES {
 
     //region Encrypt / Decrypt Methods
     private byte[] EncryptBlock(byte[] data) {
-        /*
-            Arbeitsweise
-            Rijndael ist eine als Substitutions-Permutations-Netzwerk entworfene Blockchiffre.
-            Bei Rijndael können Blocklänge und Schlüssellänge unabhängig voneinander die
-            Werte 128, 192 oder 256 Bits erhalten, während bei AES die Einschränkung
-            der festgelegten Blockgröße von 128 Bit und der Schlüsselgröße von 128, 192 oder 256 Bit gilt.
-            Jeder Block wird zunächst in eine zweidimensionale Tabelle mit vier Zeilen geschrieben,
-            deren Zellen ein Byte groß sind.
-            Die Anzahl der Spalten variiert somit je nach Blockgröße von 4 (128 Bits) bis 8 (256 Bits).
-            Jeder Block wird nun nacheinander bestimmten Transformationen unterzogen.
-            Aber anstatt jeden Block einmal mit dem Schlüssel zu verschlüsseln,
-            wendet Rijndael verschiedene Teile des erweiterten Originalschlüssels nacheinander auf den Klartext-Block an.
-         */
-
-        // Als "WORD" kann der Datentyp _int_ benutzt werden, da dieser eine Groeße von 4 bytes (32 bits) besitzt.
-
         // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
         byte[][] state = new byte[4][4];
 
@@ -152,77 +136,103 @@ public class AES {
             state[x][y] = data[i];
         }
 
+        state = ShiftRows(state);
 
-        return null;
+
+        byte[] encryptedData = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
+
+            encryptedData[i] = state[x][y];
+        }
+
+        return encryptedData;
     }
 
     private byte[] DecryptBlock(byte[] encryptedData) {
-        return null;
+        return new byte[0];
     }
     //endregion
 
     //region Wrapper Methods
     public byte[] Encrypt(byte[] data) {
         // In Bloecke teilen, einzeln verschluesseln und dann zusammengefuegt returnen
-        return null;
+        return EncryptBlock(data);
     }
 
     public byte[] Decrypt(byte[] encryptedData) {
         // In Bloecke teilen, einzeln entschluesseln und dann zusammengefuegt returnen
-        return null;
+        return DecryptBlock(encryptedData);
     }
     //endregion
 
     //region AddRoundKey Method (for en- and decryption)
-    private byte[] AddRoundKey(byte[] state, byte[] expandedKey) {
+    private byte[][] AddRoundKey(byte[][] state, byte[] expandedKey) {
         return null;
     }
     //endregion
 
     //region Encryption Methods
-    private byte[] SubBytes(byte[] state) {
-        for (int i = 0; i < state.length; i++) {
-            int firstNum  = (state[i] & 0xf0) >> 4;
-            int secondNum = (state[i] & 0xf);
+    private byte[][] SubBytes(byte[][] state) {
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
 
-            state[i] = SBox[firstNum][secondNum];
+            int firstNum  = (state[x][y] & 0xf0) >> 4;
+            int secondNum = (state[x][y] & 0xf);
+
+            state[x][y] = SBox[firstNum][secondNum];
         }
 
         return state;
     }
 
-    private byte[] ShiftRows(byte[] state) {
-        return null;
+    private byte[][] ShiftRows(byte[][] state) {
+
+        byte[][] localState = state;
+
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
+
+            localState[x][y] = state[(x+y)%4][y];
+        }
+
+        return localState;
     }
 
-    private byte[] MixColumns(byte[] state) {
+    private byte[][] MixColumns(byte[][] state) {
         return null;
     }
     //endregion
 
     //region Decryption (Inverse) Methods
-    private byte[] InvSubBytes(byte[] state) {
-        for (int i = 0; i < state.length; i++) {
-            int firstNum  = (state[i] & 0xF0) >> 4;
-            int secondNum = (state[i] & 0x0F);
+    private byte[][] InvSubBytes(byte[][] state) {
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
 
-            state[i] = InvSBox[firstNum][secondNum];
+            int firstNum  = (state[x][y] & 0xf0) >> 4;
+            int secondNum = (state[x][y] & 0xf);
+
+            state[x][y] = InvSBox[firstNum][secondNum];
         }
 
         return state;
     }
 
-    private byte[] InvShiftRows(byte[] state) {
+    private byte[][] InvShiftRows(byte[][] state) {
         return null;
     }
 
-    private byte[] InvMixColumns(byte[] state) {
+    private byte[][] InvMixColumns(byte[][] state) {
         return null;
     }
     //endregion
 
     //region Key Expansion
-    public byte[] ExpandKey(byte[] key, int Nk) {
+    private byte[] ExpandKey(byte[] key, int Nk) {
         byte[] words = new byte[4*4*(Rounds+1)];
 
         byte[] temp = new byte[4]; // Word
@@ -230,20 +240,20 @@ public class AES {
         int i = 0;
 
         while (i < Nk) {
-            words[(4*i)+0] = key[(4*i) + 0];
-            words[(4*i)+1] = key[(4*i) + 1];
-            words[(4*i)+2] = key[(4*i) + 2];
-            words[(4*i)+3] = key[(4*i) + 3];
+            words[4 * i]     = key[4 * i];
+            words[4 * i + 1] = key[4 * i + 1];
+            words[4 * i + 2] = key[4 * i + 2];
+            words[4 * i + 3] = key[4 * i + 3];
             i++;
         }
 
         i = Nk;
 
         while (i < 4 * (Rounds + 1)) {
-            temp[0] = words[(4*(i-1)) + 0];
-            temp[1] = words[(4*(i-1)) + 1];
-            temp[2] = words[(4*(i-1)) + 2];
-            temp[3] = words[(4*(i-1)) + 3];
+            temp[0] = words[4 * (i - 1)];
+            temp[1] = words[4 * (i - 1) + 1];
+            temp[2] = words[4 * (i - 1) + 2];
+            temp[3] = words[4 * (i - 1) + 3];
 
             if (i % Nk == 0) {
                 temp = RotWord(temp);
@@ -254,10 +264,10 @@ public class AES {
                 temp = SubWord(temp);
             }
 
-            words[4*i+0] = ((byte) (words[4 * (i - Nk) + 0] ^ temp[0]));
-            words[4*i+1] = ((byte) (words[4 * (i - Nk) + 1] ^ temp[1]));
-            words[4*i+2] = ((byte) (words[4 * (i - Nk) + 2] ^ temp[2]));
-            words[4*i+3] = ((byte) (words[4 * (i - Nk) + 3] ^ temp[3]));
+            words[4 * i] = ((byte) (words[4 * (i - Nk)] ^ temp[0]));
+            words[4 * i + 1] = ((byte) (words[4 * (i - Nk) + 1] ^ temp[1]));
+            words[4 * i + 2] = ((byte) (words[4 * (i - Nk) + 2] ^ temp[2]));
+            words[4 * i + 3] = ((byte) (words[4 * (i - Nk) + 3] ^ temp[3]));
 
             i++;
         }
@@ -265,7 +275,7 @@ public class AES {
     }
 
     //region Adopted from another source
-    byte[] CoefAdd(byte[] word, byte[] word2) {
+    private byte[] CoefAdd(byte[] word, byte[] word2) {
         byte[] temp = new byte[4];
 
         temp[0] = ((byte) (word[0] ^ word2[0]));
@@ -276,7 +286,7 @@ public class AES {
         return temp;
     }
 
-    byte[] Rcon(byte i) {
+    private byte[] Rcon(byte i) {
 
         if (i == 1) {
             Rcon[0] = 0x01; // x^(1-1) = x^0 = 1
@@ -292,9 +302,9 @@ public class AES {
         return Rcon;
     }
 
-    byte BitwiseMultiplication(byte a, byte b) {
+    private byte BitwiseMultiplication(byte a, byte b) {
 
-        byte p = (byte)0x0, i= (byte)0x0, hbs = (byte)0x0;
+        byte p = (byte)0x0, i, hbs;
 
         for (i = 0; i < 8; i++) {
             if ((b & (byte)0x1) != 0) {
