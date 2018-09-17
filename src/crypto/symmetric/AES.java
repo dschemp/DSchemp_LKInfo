@@ -1,6 +1,5 @@
 package crypto.symmetric;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class AES {
@@ -129,11 +128,18 @@ public class AES {
         // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
         byte[][] state = ConvertArrayToState(data);
 
+        state = AddRoundKey(state, 0);
 
+        for (int r = 1; r < Rounds; r++) {
+            state = SubBytes(state);
+            state = ShiftRows(state);
+            state = MixColumns(state);
+            state = AddRoundKey(state, r);
+        }
+
+        state = SubBytes(state);
         state = ShiftRows(state);
-        state = InvShiftRows(state);
-
-
+        state = AddRoundKey(state, Rounds);
 
         byte[] encryptedData = ConvertStateToByteArrray(state);
         return encryptedData;
@@ -157,8 +163,15 @@ public class AES {
     //endregion
 
     //region AddRoundKey Method (for en- and decryption)
-    private byte[][] AddRoundKey(byte[][] state, byte[] expandedKey) {
-        return null;
+    private byte[][] AddRoundKey(byte[][] state, int round) {
+        for (int c = 0; c < 4; c++) {
+            state[c][0] ^= ExpandedKey[4 * 4 * round + 4 * c + 0];
+            state[c][1] ^= ExpandedKey[4 * 4 * round + 4 * c + 1];
+            state[c][2] ^= ExpandedKey[4 * 4 * round + 4 * c + 2];
+            state[c][3] ^= ExpandedKey[4 * 4 * round + 4 * c + 3];
+        }
+
+        return state;
     }
     //endregion
 
@@ -192,7 +205,17 @@ public class AES {
     }
 
     private byte[][] MixColumns(byte[][] state) {
-        return null;
+        // TODO: TEST
+        byte[][] tempState = new byte[4][4];
+
+        for (int x = 0; x < 4; x++) {
+
+            tempState[x][0] = (byte)( BitwiseMultiplication((byte)0x2, state[x][0]) ^ BitwiseMultiplication((byte)0x3, state[x][1]) ^ state[x][2]                                   ^ state[x][3] );
+            tempState[x][1] = (byte)( state[x][0]                                   ^ BitwiseMultiplication((byte)0x2, state[x][1]) ^ BitwiseMultiplication((byte)0x3, state[x][2]) ^ state[x][3] );
+            tempState[x][2] = (byte)( state[x][0]                                   ^ state[x][1]                                   ^ BitwiseMultiplication((byte)0x2, state[x][2]) ^ BitwiseMultiplication((byte)0x3, state[x][3]) );
+            tempState[x][3] = (byte)( BitwiseMultiplication((byte)0x3, state[x][0]) ^ state[x][1]                                   ^ state[x][2]                                   ^ BitwiseMultiplication((byte)0x2, state[x][3]) );
+        }
+        return tempState;
     }
     //endregion
 
