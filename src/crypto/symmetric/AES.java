@@ -211,7 +211,8 @@ public class AES {
         // go through each row, starting at 1 because no bytes are shifted at 0
         for (int y = 1; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
-                tempState[x][y] = state[(x+y)%4][y];
+                int newX = (x + y) % 4;
+                tempState[x][y] = state[newX][y];
             }
         }
 
@@ -248,8 +249,17 @@ public class AES {
     }
 
     private byte[][] InvShiftRows(byte[][] state) {
-        // TODO: add functionality
-        return new byte[4][4];
+        byte[][] tempState = CopyStateArray(state);
+
+        // go through each row, starting at 1 because no bytes are shifted at 0
+        for (int y = 1; y < 4; y++) {
+            for (int x = 0; x < 4; x++) {
+                int newX = (x + y + 4) % 4;
+                tempState[x][y] = state[newX][y];
+            }
+        }
+
+        return tempState;
     }
 
     private byte[][] InvMixColumns(byte[][] state) {
