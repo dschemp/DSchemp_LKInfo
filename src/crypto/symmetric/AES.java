@@ -1,5 +1,6 @@
 package crypto.symmetric;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class AES {
@@ -126,27 +127,15 @@ public class AES {
     //region Encrypt / Decrypt Methods
     private byte[] EncryptBlock(byte[] data) {
         // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
-        byte[][] state = new byte[4][4];
+        byte[][] state = ConvertArrayToState(data);
 
-        // Befuelt das State Array aus dem Data Byte Array
-        for (int i = 0; i < 16; i++) {
-            int x = i / 4;
-            int y = i % 4;
-
-            state[x][y] = data[i];
-        }
 
         state = ShiftRows(state);
+        state = InvShiftRows(state);
 
 
-        byte[] encryptedData = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            int x = i / 4;
-            int y = i % 4;
 
-            encryptedData[i] = state[x][y];
-        }
-
+        byte[] encryptedData = ConvertStateToByteArrray(state);
         return encryptedData;
     }
 
@@ -189,7 +178,17 @@ public class AES {
     }
 
     private byte[][] ShiftRows(byte[][] state) {
-        return null;
+        // TODO: replace if possible
+        byte[][] tempState = CopyStateArray(state);
+
+        // go through each row, starting at 1 because no bytes are shifted at 0
+        for (int y = 1; y < 4; y++) {
+            for (int x = 0; x < 4; x++) {
+                tempState[x][y] = state[(x+y)%4][y];
+            }
+        }
+
+        return tempState;
     }
 
     private byte[][] MixColumns(byte[][] state) {
@@ -332,6 +331,51 @@ public class AES {
         word[3] = first;
 
         return word;
+    }
+    //endregion
+
+    //region Array Transformation Helper Classes
+    private byte[][] ConvertArrayToState(byte[] arr) {
+        byte[][] state = new byte[4][4];
+
+        // Befuelt das State Array aus dem Data Byte Array
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
+
+            state[x][y] = arr[i];
+        }
+
+        return state;
+    }
+
+    private byte[] ConvertStateToByteArrray(byte[][] state) {
+        byte[] bytes = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            int x = i / 4;
+            int y = i % 4;
+
+            bytes[i] = state[x][y];
+        }
+
+        return bytes;
+    }
+
+    private byte[][] CopyStateArray(byte[][] state) {
+        byte[][] newState = new byte[4][4];
+
+        /*
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                newState[i][j] = state[i][j];
+            }
+        }
+        */
+        for (int i = 0; i < 4; i++) {
+            newState[i] = state[i].clone();
+        }
+
+        return newState;
     }
     //endregion
 }
