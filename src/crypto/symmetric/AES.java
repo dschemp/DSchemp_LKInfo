@@ -263,8 +263,16 @@ public class AES {
     }
 
     private byte[][] InvMixColumns(byte[][] state) {
-        // TODO: add functionality
-        return new byte[4][4];
+        byte[][] tempState = new byte[4][4];
+
+        for (int x = 0; x < 4; x++) {
+
+            tempState[x][0] = (byte)( BitwiseMultiplication((byte)0x0e, state[x][0]) ^ BitwiseMultiplication((byte)0x0b, state[x][1]) ^ BitwiseMultiplication((byte)0x0d, state[x][2]) ^ BitwiseMultiplication((byte)0x09, state[x][3]) );
+            tempState[x][1] = (byte)( BitwiseMultiplication((byte)0x09, state[x][0]) ^ BitwiseMultiplication((byte)0x0e, state[x][1]) ^ BitwiseMultiplication((byte)0x0b, state[x][2]) ^ BitwiseMultiplication((byte)0x0d, state[x][3]) );
+            tempState[x][2] = (byte)( BitwiseMultiplication((byte)0x0d, state[x][0]) ^ BitwiseMultiplication((byte)0x09, state[x][1]) ^ BitwiseMultiplication((byte)0x0e, state[x][2]) ^ BitwiseMultiplication((byte)0x0b, state[x][3]) );
+            tempState[x][3] = (byte)( BitwiseMultiplication((byte)0x0b, state[x][0]) ^ BitwiseMultiplication((byte)0x0d, state[x][1]) ^ BitwiseMultiplication((byte)0x09, state[x][2]) ^ BitwiseMultiplication((byte)0x0e, state[x][3]) );
+        }
+        return tempState;
     }
     //endregion
 
