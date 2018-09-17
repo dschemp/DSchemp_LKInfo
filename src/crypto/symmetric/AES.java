@@ -125,7 +125,6 @@ public class AES {
 
     //region Encrypt / Decrypt Methods
     private byte[] EncryptBlock(byte[] data) {
-        // das Arrays ist folgendermaßen aufgebaut [Spalten][Reihen]
         byte[][] state = ConvertArrayToState(data);
 
         state = AddRoundKey(state, 0);
@@ -146,18 +145,34 @@ public class AES {
     }
 
     private byte[] DecryptBlock(byte[] encryptedData) {
-        return new byte[0];
+        byte[][] state = ConvertArrayToState(encryptedData);
+
+        state = AddRoundKey(state, Rounds);
+
+        for (int r = Rounds - 1; r > 1; r--) {
+            state = InvShiftRows(state);
+            state = InvSubBytes(state);
+            state = AddRoundKey(state, r);
+            state = InvMixColumns(state);
+        }
+
+        state = InvShiftRows(state);
+        state = InvSubBytes(state);
+        state = AddRoundKey(state, 0);
+
+        byte[] decryptedData = ConvertStateToByteArrray(state);
+        return decryptedData;
     }
     //endregion
 
     //region Wrapper Methods
     public byte[] Encrypt(byte[] data) {
-        // In Bloecke teilen, einzeln verschluesseln und dann zusammengefuegt returnen
+        // TODO: In Bloecke teilen, einzeln verschluesseln und dann zusammengefuegt returnen
         return EncryptBlock(data);
     }
 
     public byte[] Decrypt(byte[] encryptedData) {
-        // In Bloecke teilen, einzeln entschluesseln und dann zusammengefuegt returnen
+        // TODO: In Bloecke teilen, einzeln entschluesseln und dann zusammengefuegt returnen
         return DecryptBlock(encryptedData);
     }
     //endregion
@@ -191,7 +206,6 @@ public class AES {
     }
 
     private byte[][] ShiftRows(byte[][] state) {
-        // TODO: replace if possible
         byte[][] tempState = CopyStateArray(state);
 
         // go through each row, starting at 1 because no bytes are shifted at 0
@@ -205,7 +219,6 @@ public class AES {
     }
 
     private byte[][] MixColumns(byte[][] state) {
-        // TODO: TEST
         byte[][] tempState = new byte[4][4];
 
         for (int x = 0; x < 4; x++) {
@@ -235,11 +248,13 @@ public class AES {
     }
 
     private byte[][] InvShiftRows(byte[][] state) {
-        return null;
+        // TODO: add functionality
+        return new byte[4][4];
     }
 
     private byte[][] InvMixColumns(byte[][] state) {
-        return null;
+        // TODO: add functionality
+        return new byte[4][4];
     }
     //endregion
 
@@ -373,6 +388,9 @@ public class AES {
     }
 
     private byte[] ConvertStateToByteArrray(byte[][] state) {
+        if (state == null)
+            return null;
+
         byte[] bytes = new byte[16];
         for (int i = 0; i < 16; i++) {
             int x = i / 4;
