@@ -149,7 +149,7 @@ public class AES {
 
         state = AddRoundKey(state, Rounds);
 
-        for (int r = Rounds - 1; r > 1; r--) {
+        for (int r = Rounds - 1; r >= 1; r--) {
             state = InvShiftRows(state);
             state = InvSubBytes(state);
             state = AddRoundKey(state, r);
@@ -254,7 +254,7 @@ public class AES {
         // go through each row, starting at 1 because no bytes are shifted at 0
         for (int y = 1; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
-                int newX = (x + y + 4) % 4;
+                int newX = (x + 4 - y) % 4;
                 tempState[x][y] = state[newX][y];
             }
         }
@@ -262,7 +262,7 @@ public class AES {
         return tempState;
     }
 
-    private byte[][] InvMixColumns(byte[][] state) {
+    public byte[][] InvMixColumns(byte[][] state) {
         byte[][] tempState = new byte[4][4];
 
         for (int x = 0; x < 4; x++) {
@@ -391,7 +391,7 @@ public class AES {
     //endregion
 
     //region Array Transformation Helper Classes
-    private byte[][] ConvertArrayToState(byte[] arr) {
+    public byte[][] ConvertArrayToState(byte[] arr) {
         byte[][] state = new byte[4][4];
 
         // Befuelt das State Array aus dem Data Byte Array
@@ -405,7 +405,7 @@ public class AES {
         return state;
     }
 
-    private byte[] ConvertStateToByteArrray(byte[][] state) {
+    public byte[] ConvertStateToByteArrray(byte[][] state) {
         if (state == null)
             return null;
 
@@ -420,7 +420,7 @@ public class AES {
         return bytes;
     }
 
-    private byte[][] CopyStateArray(byte[][] state) {
+    public byte[][] CopyStateArray(byte[][] state) {
         byte[][] newState = new byte[4][4];
 
         /*
