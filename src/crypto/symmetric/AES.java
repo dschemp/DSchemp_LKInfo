@@ -1,5 +1,6 @@
 package crypto.symmetric;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class AES {
@@ -47,7 +48,7 @@ public class AES {
         //endregion
 
         //region When setting the key, generate the expanded key and place it in the variable
-        byte[] expandedKey = ExpandKey(key, key.length / 4);
+        byte[] expandedKey = expandKey(key, key.length / 4);
         setExpandedKey(expandedKey);
         //endregion
     }
@@ -70,10 +71,6 @@ public class AES {
 
     private void setExpandedKey(byte[] expandedKey) {
         this.ExpandedKey = expandedKey;
-    }
-
-    public byte[] getExpandedKey() {
-        return this.ExpandedKey;
     }
     //endregion
 
@@ -124,56 +121,78 @@ public class AES {
     }
 
     //region Encrypt / Decrypt Methods
-    private byte[] EncryptBlock(byte[] data) {
-        byte[][] state = ConvertArrayToState(data);
+    private byte[] encryptBlock(byte[] data) {
+        byte[][] state = convertArrayToState(data);
 
         state = AddRoundKey(state, 0);
 
         for (int r = 1; r < Rounds; r++) {
-            state = SubBytes(state);
-            state = ShiftRows(state);
-            state = MixColumns(state);
+            state = subBytes(state);
+            state = shiftRows(state);
+            state = mixColumns(state);
             state = AddRoundKey(state, r);
         }
 
-        state = SubBytes(state);
-        state = ShiftRows(state);
+        state = subBytes(state);
+        state = shiftRows(state);
         state = AddRoundKey(state, Rounds);
 
-        byte[] encryptedData = ConvertStateToByteArrray(state);
+        byte[] encryptedData = convertStateToByteArrray(state);
         return encryptedData;
     }
 
-    private byte[] DecryptBlock(byte[] encryptedData) {
-        byte[][] state = ConvertArrayToState(encryptedData);
+    private byte[] decryptBlock(byte[] encryptedData) {
+        byte[][] state = convertArrayToState(encryptedData);
 
         state = AddRoundKey(state, Rounds);
 
         for (int r = Rounds - 1; r >= 1; r--) {
-            state = InvShiftRows(state);
-            state = InvSubBytes(state);
+            state = invShiftRows(state);
+            state = invSubBytes(state);
             state = AddRoundKey(state, r);
-            state = InvMixColumns(state);
+            state = invMixColumns(state);
         }
 
-        state = InvShiftRows(state);
-        state = InvSubBytes(state);
+        state = invShiftRows(state);
+        state = invSubBytes(state);
         state = AddRoundKey(state, 0);
 
-        byte[] decryptedData = ConvertStateToByteArrray(state);
+        byte[] decryptedData = convertStateToByteArrray(state);
         return decryptedData;
     }
     //endregion
 
     //region Wrapper Methods
-    public byte[] Encrypt(byte[] data) {
-        // TODO: In Bloecke teilen, einzeln verschluesseln und dann zusammengefuegt returnen
-        return EncryptBlock(data);
+    public byte[] encrypt(byte[] data) {
+        int blocks = (int)Math.ceil(data.length/16.0);
+        byte[] output = new byte[blocks*16];
+
+        for (int i = 0; i < blocks; i++) {
+            int start = i * 16;
+            int end = (i+1)*16;
+            byte[] block = Arrays.copyOfRange(data, start, end);
+            byte[] ciphertext = encryptBlock(block);
+            for (int j = start; j < end; j++) {
+                output[j] = ciphertext[j - start];
+            }
+        }
+        return output;
     }
 
-    public byte[] Decrypt(byte[] encryptedData) {
-        // TODO: In Bloecke teilen, einzeln entschluesseln und dann zusammengefuegt returnen
-        return DecryptBlock(encryptedData);
+    public byte[] decrypt(byte[] encryptedData) {
+        int blocks = (int)Math.ceil(encryptedData.length/16.0);
+        byte[] output = new byte[blocks*16];
+
+        for (int i = 0; i < blocks; i++) {
+            int start = i * 16;
+            int end = (i+1)*16;
+            byte[] block = Arrays.copyOfRange(encryptedData, start, end);
+            byte[] ciphertext = decryptBlock(block);
+            for (int j = start; j < end; j++) {
+                output[j] = ciphertext[j - start];
+            }
+        }
+        return output;
     }
     //endregion
 
@@ -191,7 +210,7 @@ public class AES {
     //endregion
 
     //region Encryption Methods
-    private byte[][] SubBytes(byte[][] state) {
+    private byte[][] subBytes(byte[][] state) {
         for (int i = 0; i < 16; i++) {
             int x = i / 4;
             int y = i % 4;
@@ -205,8 +224,8 @@ public class AES {
         return state;
     }
 
-    private byte[][] ShiftRows(byte[][] state) {
-        byte[][] tempState = CopyStateArray(state);
+    private byte[][] shiftRows(byte[][] state) {
+        byte[][] tempState = copyStateArray(state);
 
         // go through each row, starting at 1 because no bytes are shifted at 0
         for (int y = 1; y < 4; y++) {
@@ -219,22 +238,22 @@ public class AES {
         return tempState;
     }
 
-    private byte[][] MixColumns(byte[][] state) {
+    private byte[][] mixColumns(byte[][] state) {
         byte[][] tempState = new byte[4][4];
 
         for (int x = 0; x < 4; x++) {
 
-            tempState[x][0] = (byte)( BitwiseMultiplication((byte)0x2, state[x][0]) ^ BitwiseMultiplication((byte)0x3, state[x][1]) ^ state[x][2]                                   ^ state[x][3] );
-            tempState[x][1] = (byte)( state[x][0]                                   ^ BitwiseMultiplication((byte)0x2, state[x][1]) ^ BitwiseMultiplication((byte)0x3, state[x][2]) ^ state[x][3] );
-            tempState[x][2] = (byte)( state[x][0]                                   ^ state[x][1]                                   ^ BitwiseMultiplication((byte)0x2, state[x][2]) ^ BitwiseMultiplication((byte)0x3, state[x][3]) );
-            tempState[x][3] = (byte)( BitwiseMultiplication((byte)0x3, state[x][0]) ^ state[x][1]                                   ^ state[x][2]                                   ^ BitwiseMultiplication((byte)0x2, state[x][3]) );
+            tempState[x][0] = (byte)( bitwiseMultiplication((byte)0x2, state[x][0]) ^ bitwiseMultiplication((byte)0x3, state[x][1]) ^ state[x][2]                                   ^ state[x][3] );
+            tempState[x][1] = (byte)( state[x][0]                                   ^ bitwiseMultiplication((byte)0x2, state[x][1]) ^ bitwiseMultiplication((byte)0x3, state[x][2]) ^ state[x][3] );
+            tempState[x][2] = (byte)( state[x][0]                                   ^ state[x][1]                                   ^ bitwiseMultiplication((byte)0x2, state[x][2]) ^ bitwiseMultiplication((byte)0x3, state[x][3]) );
+            tempState[x][3] = (byte)( bitwiseMultiplication((byte)0x3, state[x][0]) ^ state[x][1]                                   ^ state[x][2]                                   ^ bitwiseMultiplication((byte)0x2, state[x][3]) );
         }
         return tempState;
     }
     //endregion
 
     //region Decryption (Inverse) Methods
-    private byte[][] InvSubBytes(byte[][] state) {
+    private byte[][] invSubBytes(byte[][] state) {
         for (int i = 0; i < 16; i++) {
             int x = i / 4;
             int y = i % 4;
@@ -248,8 +267,8 @@ public class AES {
         return state;
     }
 
-    private byte[][] InvShiftRows(byte[][] state) {
-        byte[][] tempState = CopyStateArray(state);
+    private byte[][] invShiftRows(byte[][] state) {
+        byte[][] tempState = copyStateArray(state);
 
         // go through each row, starting at 1 because no bytes are shifted at 0
         for (int y = 1; y < 4; y++) {
@@ -262,22 +281,22 @@ public class AES {
         return tempState;
     }
 
-    public byte[][] InvMixColumns(byte[][] state) {
+    private byte[][] invMixColumns(byte[][] state) {
         byte[][] tempState = new byte[4][4];
 
         for (int x = 0; x < 4; x++) {
 
-            tempState[x][0] = (byte)( BitwiseMultiplication((byte)0x0e, state[x][0]) ^ BitwiseMultiplication((byte)0x0b, state[x][1]) ^ BitwiseMultiplication((byte)0x0d, state[x][2]) ^ BitwiseMultiplication((byte)0x09, state[x][3]) );
-            tempState[x][1] = (byte)( BitwiseMultiplication((byte)0x09, state[x][0]) ^ BitwiseMultiplication((byte)0x0e, state[x][1]) ^ BitwiseMultiplication((byte)0x0b, state[x][2]) ^ BitwiseMultiplication((byte)0x0d, state[x][3]) );
-            tempState[x][2] = (byte)( BitwiseMultiplication((byte)0x0d, state[x][0]) ^ BitwiseMultiplication((byte)0x09, state[x][1]) ^ BitwiseMultiplication((byte)0x0e, state[x][2]) ^ BitwiseMultiplication((byte)0x0b, state[x][3]) );
-            tempState[x][3] = (byte)( BitwiseMultiplication((byte)0x0b, state[x][0]) ^ BitwiseMultiplication((byte)0x0d, state[x][1]) ^ BitwiseMultiplication((byte)0x09, state[x][2]) ^ BitwiseMultiplication((byte)0x0e, state[x][3]) );
+            tempState[x][0] = (byte)( bitwiseMultiplication((byte)0x0e, state[x][0]) ^ bitwiseMultiplication((byte)0x0b, state[x][1]) ^ bitwiseMultiplication((byte)0x0d, state[x][2]) ^ bitwiseMultiplication((byte)0x09, state[x][3]) );
+            tempState[x][1] = (byte)( bitwiseMultiplication((byte)0x09, state[x][0]) ^ bitwiseMultiplication((byte)0x0e, state[x][1]) ^ bitwiseMultiplication((byte)0x0b, state[x][2]) ^ bitwiseMultiplication((byte)0x0d, state[x][3]) );
+            tempState[x][2] = (byte)( bitwiseMultiplication((byte)0x0d, state[x][0]) ^ bitwiseMultiplication((byte)0x09, state[x][1]) ^ bitwiseMultiplication((byte)0x0e, state[x][2]) ^ bitwiseMultiplication((byte)0x0b, state[x][3]) );
+            tempState[x][3] = (byte)( bitwiseMultiplication((byte)0x0b, state[x][0]) ^ bitwiseMultiplication((byte)0x0d, state[x][1]) ^ bitwiseMultiplication((byte)0x09, state[x][2]) ^ bitwiseMultiplication((byte)0x0e, state[x][3]) );
         }
         return tempState;
     }
     //endregion
 
     //region Key Expansion
-    private byte[] ExpandKey(byte[] key, int Nk) {
+    private byte[] expandKey(byte[] key, int Nk) {
         byte[] words = new byte[4*4*(Rounds+1)];
 
         byte[] temp = new byte[4]; // Word
@@ -301,12 +320,12 @@ public class AES {
             temp[3] = words[4 * (i - 1) + 3];
 
             if (i % Nk == 0) {
-                temp = RotWord(temp);
-                temp = SubWord(temp);
-                temp = CoefAdd(temp, Rcon(((byte) (i / Nk))));
+                temp = rotWord(temp);
+                temp = subWord(temp);
+                temp = coefAdd(temp, rcon(((byte) (i / Nk))));
             }
             else if (Nk > 6 && i % Nk == 4) {
-                temp = SubWord(temp);
+                temp = subWord(temp);
             }
 
             words[4 * i] = ((byte) (words[4 * (i - Nk)] ^ temp[0]));
@@ -320,7 +339,7 @@ public class AES {
     }
 
     //region Adopted from another source
-    private byte[] CoefAdd(byte[] word, byte[] word2) {
+    private byte[] coefAdd(byte[] word, byte[] word2) {
         byte[] temp = new byte[4];
 
         temp[0] = ((byte) (word[0] ^ word2[0]));
@@ -331,7 +350,7 @@ public class AES {
         return temp;
     }
 
-    private byte[] Rcon(byte i) {
+    private byte[] rcon(byte i) {
 
         if (i == 1) {
             Rcon[0] = 0x01; // x^(1-1) = x^0 = 1
@@ -339,7 +358,7 @@ public class AES {
             Rcon[0] = 0x02;
             i--;
             while (i-1 > 0) {
-                Rcon[0] = BitwiseMultiplication(Rcon[0], (byte)0x02);
+                Rcon[0] = bitwiseMultiplication(Rcon[0], (byte)0x02);
                 i--;
             }
         }
@@ -347,7 +366,7 @@ public class AES {
         return Rcon;
     }
 
-    private byte BitwiseMultiplication(byte a, byte b) {
+    private byte bitwiseMultiplication(byte a, byte b) {
 
         byte p = (byte)0x0, i, hbs;
 
@@ -366,7 +385,7 @@ public class AES {
     }
     //endregion
 
-    private byte[] SubWord(byte[] word) {
+    private byte[] subWord(byte[] word) {
         for (int i = 0; i < word.length; i++) {
             int firstNum = (word[i] & 0xF0) >> 4;
             int secondNum = (word[i] & 0x0F);
@@ -377,7 +396,7 @@ public class AES {
         return word;
     }
 
-    private byte[] RotWord(byte[] word) {
+    private byte[] rotWord(byte[] word) {
         byte first = word[0];
 
         // Shift all bytes one byte to the left
@@ -391,7 +410,7 @@ public class AES {
     //endregion
 
     //region Array Transformation Helper Classes
-    public byte[][] ConvertArrayToState(byte[] arr) {
+    private byte[][] convertArrayToState(byte[] arr) {
         byte[][] state = new byte[4][4];
 
         // Befuelt das State Array aus dem Data Byte Array
@@ -405,7 +424,7 @@ public class AES {
         return state;
     }
 
-    public byte[] ConvertStateToByteArrray(byte[][] state) {
+    private byte[] convertStateToByteArrray(byte[][] state) {
         if (state == null)
             return null;
 
@@ -420,7 +439,7 @@ public class AES {
         return bytes;
     }
 
-    public byte[][] CopyStateArray(byte[][] state) {
+    private byte[][] copyStateArray(byte[][] state) {
         byte[][] newState = new byte[4][4];
 
         /*
