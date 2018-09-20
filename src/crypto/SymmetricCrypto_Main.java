@@ -9,7 +9,9 @@ public class SymmetricCrypto_Main {
 
         AES aes192 = AES.CreateWithNewRandomKey(192);
 
-        byte[] data = HexBin.decode("abcdef123456789abcdef123456789abcdef123456789a");
+        String s = "abcdef123456789abcdef123456789abcdef123456789abc";
+
+        byte[] data = HexBin.decode(s);
 
         byte[] key = aes192.getKey();
         byte[] ciphertext = aes192.encrypt(data);
@@ -19,9 +21,9 @@ public class SymmetricCrypto_Main {
         String ciphertextString = HexBin.encode(ciphertext);
         String plaintextString = HexBin.encode(plaintext);
 
-
         System.out.println(keyString);
         System.out.println(ciphertextString);
+        System.out.println(s);
         System.out.println(plaintextString);
     }
 

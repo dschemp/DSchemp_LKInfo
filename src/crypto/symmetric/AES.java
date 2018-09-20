@@ -124,18 +124,18 @@ public class AES {
     private byte[] encryptBlock(byte[] data) {
         byte[][] state = convertArrayToState(data);
 
-        state = AddRoundKey(state, 0);
+        state = addRoundKey(state, 0);
 
         for (int r = 1; r < Rounds; r++) {
             state = subBytes(state);
             state = shiftRows(state);
             state = mixColumns(state);
-            state = AddRoundKey(state, r);
+            state = addRoundKey(state, r);
         }
 
         state = subBytes(state);
         state = shiftRows(state);
-        state = AddRoundKey(state, Rounds);
+        state = addRoundKey(state, Rounds);
 
         byte[] encryptedData = convertStateToByteArrray(state);
         return encryptedData;
@@ -144,18 +144,18 @@ public class AES {
     private byte[] decryptBlock(byte[] encryptedData) {
         byte[][] state = convertArrayToState(encryptedData);
 
-        state = AddRoundKey(state, Rounds);
+        state = addRoundKey(state, Rounds);
 
         for (int r = Rounds - 1; r >= 1; r--) {
             state = invShiftRows(state);
             state = invSubBytes(state);
-            state = AddRoundKey(state, r);
+            state = addRoundKey(state, r);
             state = invMixColumns(state);
         }
 
         state = invShiftRows(state);
         state = invSubBytes(state);
-        state = AddRoundKey(state, 0);
+        state = addRoundKey(state, 0);
 
         byte[] decryptedData = convertStateToByteArrray(state);
         return decryptedData;
@@ -196,8 +196,8 @@ public class AES {
     }
     //endregion
 
-    //region AddRoundKey Method (for en- and decryption)
-    private byte[][] AddRoundKey(byte[][] state, int round) {
+    //region addRoundKey Method (for en- and decryption)
+    private byte[][] addRoundKey(byte[][] state, int round) {
         for (int c = 0; c < 4; c++) {
             state[c][0] ^= ExpandedKey[4 * 4 * round + 4 * c + 0];
             state[c][1] ^= ExpandedKey[4 * 4 * round + 4 * c + 1];
