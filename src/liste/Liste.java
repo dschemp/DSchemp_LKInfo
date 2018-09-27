@@ -61,11 +61,9 @@ public class Liste {
         ListElement lastDeleteElement = deleteElement.LastElement;
         ListElement nextDeleteElement = deleteElement.NextElement;
 
-        // TODO: NullPointerException
         lastDeleteElement.NextElement = nextDeleteElement;
         nextDeleteElement.LastElement = lastDeleteElement;
 
-        // TODO: NullPointerException
         lastDeleteElement.NextElement = nextDeleteElement;
         nextDeleteElement.LastElement = lastDeleteElement;
     }

@@ -5,7 +5,6 @@ import java.util.Random;
 public class Sortieren_Main {
 
     public static void main(String[] args) {
-        // TODO code application logic here
         int[] randomInts = new int[20];
 
         Random rnd = new Random();

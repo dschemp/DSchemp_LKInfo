@@ -10,7 +10,6 @@ import java.util.Random;
 public class CountNumbers {
 
     public static void main(String[] args) {
-        // TODO code application logic here
         int[] ranNums = RandomInts(1000, 10);
         int numberToSearch = 5;
         int amountOfNumberToSearch = SearchAmountOf(numberToSearch, ranNums);
