@@ -37,14 +37,12 @@ public class AES {
         }
         this.Key = key;
 
-        //region Calculate Rounds and Cipher Key World Length
+        //region Calculate Rounds
         // Anzahl der Runden bei AES
         // max(b, k) | 128 | 192 | 256
         // Runden r	 | 10  | 12  | 14
         // Die Bit-Längen sind in 32-bit-(4 byte)-Schritten angegeben
         this.Rounds = (Key.length / 4) + 6;
-
-        this.CipherKeyWordLength = 4 * (Rounds + 1);
         //endregion
 
         //region When setting the key, generate the expanded key and place it in the variable
@@ -60,8 +58,6 @@ public class AES {
 
     //region Misc
     private int Rounds;
-
-    private int CipherKeyWordLength;
 
     private byte[] Rcon = { (byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00 };
     //endregion
@@ -442,13 +438,6 @@ public class AES {
     private byte[][] copyStateArray(byte[][] state) {
         byte[][] newState = new byte[4][4];
 
-        /*
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                newState[i][j] = state[i][j];
-            }
-        }
-        */
         for (int i = 0; i < 4; i++) {
             newState[i] = state[i].clone();
         }
