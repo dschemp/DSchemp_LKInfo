@@ -1,7 +1,7 @@
 package ausrechnen;
 
 public class Wurzel {
-    public static float QuadratWurzel(double num, int iterations) {
+    public static float Sqrt(double num, int iterations) {
         float startValue = 1f;
         float value = (float) ((1 / 2.0f) * (startValue + (num / startValue)));
 
@@ -11,7 +11,7 @@ public class Wurzel {
         return value;
     }
 
-    public static float QuadratWurzel(double num) {
-        return QuadratWurzel(num, 10);
+    public static float Sqrt(double num) {
+        return Sqrt(num, 10);
     }
 }
