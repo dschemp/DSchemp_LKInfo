@@ -111,13 +111,8 @@ public class MD5 {
     }
 
     //region Helper Methods
-    public int rotationShiftLeft(int i, int n) {
-        return (i << n) | (i >> 32 - n);
-    }
 
-    public int rotationShiftRight(int i, int n) {
-        return (i >> n) | (i << 32 - n);
-    }
+    /* --- For Bit Manipulation: see misc.BitManipulation  */
 
     private byte[] pad(byte[] arr) {
         /*
@@ -133,11 +128,15 @@ public class MD5 {
             least one bit and at most 512 bits are appended.
         */
 
-        byte padByte = (byte)0x80;
-
         // The message is "padded" (extended) so that its length (in bits) is
         // congruent to 448 (56 bytes), modulo 512 (64 bytes).
         if (arr.length % 64 != 56) {
+            int newArraySize = (arr.length / 64) + 56 - (arr.length % 64);
+            byte[] newPaddedArr = new byte[newArraySize];
+
+            byte padByte = (byte)0x80;
+
+
             throw new NotImplementedException();
         }
         else { // Don't pad
