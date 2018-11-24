@@ -4,6 +4,22 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class MD5 {
 
+    /* Global variables */
+    /**
+     * Note that the offset is -1!
+     * The documentation's 1 is equal to 1 - offset = 0 and so on.
+     */
+    private long[] T;
+
+
+    public MD5() {
+        T = new long[64];
+        for (int i = 0; i < T.length; i++) {
+            long num = (long) (4294967296L * Math.abs(Math.sin(i + 1)));
+            T[i] = num;
+        }
+    }
+
     //region Bit Manipulation Methods
     /*
      * F(X,Y,Z) = XY v not(X) Z
@@ -138,7 +154,7 @@ public class MD5 {
         // congruent to 448 (56 bytes), modulo 512 (64 bytes).
         if (arr.length % 64 != 56) {
             // TODO: fix calculation of the array size
-            int newArraySize = (arr.length / 64) + 56 - (arr.length % 64);
+            int newArraySize = calcNewArrayLength(arr.length);
             byte[] newPaddedArr = new byte[newArraySize];
 
             // copy already existing data into new padded array
@@ -193,6 +209,13 @@ public class MD5 {
 
     private byte[] convertIntArrToByteArr(int[] arr) {
         throw new NotImplementedException();
+    }
+
+    private int calcNewArrayLength(int length) {
+        while (length % 64 != 56) {
+            length++;
+        }
+        return length;
     }
     //endregion
 }
