@@ -1,5 +1,7 @@
 package crypto.hash;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import static misc.BitManipulation.*;
 
 public class MD5 {
@@ -251,11 +253,36 @@ public class MD5 {
                 padByte = (byte)0x00;       // then set padbyte permanently to 0x00
             }
 
-            return newPaddedArr;
+            // return newPaddedArr;
         }
         else { // Don't pad
-            return arr;
+            // return arr;
         }
+
+        /*
+
+        3.2 Step 2. Append Length
+            A 64-bit representation of b (the length of the message before the
+            padding bits were added) is appended to the result of the previous
+            step. In the unlikely event that b is greater than 2^64, then only
+            the low-order 64 bits of b are used. (These bits are appended as two
+            32-bit words and appended low-order word first in accordance with the
+            previous conventions.)
+
+            At this point the resulting message (after padding with bits and with
+            b) has a length that is an exact multiple of 512 bits. Equivalently,
+            this message has a length that is an exact multiple of 16 (32-bit)
+            words. Let M[0 ... N-1] denote the words of the resulting message,
+            where N is a multiple of 16.
+
+            Die 64 Bit zwischen 448 und 512 werden mit der Laenge des urspruenglichen
+            Arrays gefüllt.
+
+            simplified:
+            TODO: append original length in bits mod 264 to message
+         */
+
+        throw new NotImplementedException();
     }
 
     //region Bit Manipulation Methods
