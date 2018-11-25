@@ -1,7 +1,5 @@
 package crypto.hash;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import static misc.BitManipulation.*;
 
 public class MD5 {
@@ -30,18 +28,6 @@ public class MD5 {
             0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
             0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
     };
-
-    /*
-    public MD5() {
-
-        T = new int[65} { 0x0 };
-        for (int i = 0; i < T.length; i++) {
-            int num = (int) (4294967296L * Math.abs(Math.sin(i + 1)));
-            T[i] = num;
-        }
-
-    }
-    */
 
     public static byte[] Hash(byte[] arr) {
         return new MD5().hash(arr);
@@ -88,139 +74,147 @@ public class MD5 {
         arr = pad(arr);
 
         int[] hashArr = convertByteArrToIntArr(arr);
-        int[] hashedValue = hash(hashArr);
-        byte[] hashValueArr = convertIntArrToByteArr(hashedValue);
+        byte[] hashedValue = hash(hashArr);
 
-        return hashValueArr;
+        return hashedValue;
     }
 
-    private int[] hash(int[] arr) {
+    private byte[] hash(int[] arr) {
+        /*
+         * Little Endian
+         *
+         * word A: 01 23 45 67
+         * word B: 89 ab cd ef
+         * word C: fe dc ba 98
+         * word D: 76 54 32 10
+         */
 
+        int[] state = {
+                0x67452301,
+                0xEFCDAB89,
+                0x98BADCFE,
+                0x10325476
+        };
 
         /* Process each 16-word block */
-        for (int i = 0; i <= (arr.length / 16) - 1; i++) {
-
+        for (int i = 0; i <= (int)Math.ceil(arr.length / 16.0) - 1; i++) {
             int[] X = new int[16];
             /* Copy block i into X */
-            for (int j = 0; j < X.length; j++) {
+            // TODO: Replace with System.arraycopy
+            System.arraycopy(arr, i * 16, X, 0, Math.min(X.length, arr.length));
 
-            }
-
-            /*
-             * Little Endian
-             *
-             * word A: 01 23 45 67
-             * word B: 89 ab cd ef
-             * word C: fe dc ba 98
-             * word D: 76 54 32 10
-             */
-            int A = 0x67452301,
-                B = 0xEFCDAB89,
-                C = 0x98BADCFE,
-                D = 0x10325476;
+            int A = state[0],
+                B = state[1],
+                C = state[2],
+                D = state[3];
 
             // TODO:
             /* Round 1 */
             /* Let [abcd k s i] denote the operation
             a = b + ((a + F(b,c,d) + X[k] + T[i]) <<< s). */
             /* Do the following 16 operations. */
-            A = performRoundOperation(A, B, C, D, X[0], 7, 1, 1);
-            D = performRoundOperation(D, A, B, C, X[1], 12, 2, 1);
-            C = performRoundOperation(C, D, A, B, X[2], 17, 3, 1);
-            B = performRoundOperation(B, C, D, A, X[3], 22, 4, 1);
+            A = FF(A, B, C, D, X[0], 7, 1);
+            D = FF(D, A, B, C, X[1], 12, 2);
+            C = FF(C, D, A, B, X[2], 17, 3);
+            B = FF(B, C, D, A, X[3], 22, 4);
 
-            A = performRoundOperation(A, B, C, D, X[4], 7, 5, 1);
-            D = performRoundOperation(D, A, B, C, X[5], 12, 6, 1);
-            C = performRoundOperation(C, D, A, B, X[6], 17, 7, 1);
-            B = performRoundOperation(B, C, D, A, X[7], 22, 8, 1);
+            A = FF(A, B, C, D, X[4], 7, 5);
+            D = FF(D, A, B, C, X[5], 12, 6);
+            C = FF(C, D, A, B, X[6], 17, 7);
+            B = FF(B, C, D, A, X[7], 22, 8);
 
-            A = performRoundOperation(A, B, C, D, X[8], 7, 9, 1);
-            D = performRoundOperation(D, A, B, C, X[9], 12, 10, 1);
-            C = performRoundOperation(C, D, A, B, X[10], 17, 11, 1);
-            B = performRoundOperation(B, C, D, A, X[11], 22, 12, 1);
+            A = FF(A, B, C, D, X[8], 7, 9);
+            D = FF(D, A, B, C, X[9], 12, 10);
+            C = FF(C, D, A, B, X[10], 17, 11);
+            B = FF(B, C, D, A, X[11], 22, 12);
 
-            A = performRoundOperation(A, B, C, D, X[12], 7, 13, 1);
-            D = performRoundOperation(D, A, B, C, X[13], 12, 14, 1);
-            C = performRoundOperation(C, D, A, B, X[14], 17, 15, 1);
-            B = performRoundOperation(B, C, D, A, X[15], 22, 16, 1);
+            A = FF(A, B, C, D, X[12], 7, 13);
+            D = FF(D, A, B, C, X[13], 12, 14);
+            C = FF(C, D, A, B, X[14], 17, 15);
+            B = FF(B, C, D, A, X[15], 22, 16);
+
 
             /* Round 2. */
             /* Let [abcd k s i] denote the operation
                 a = b + ((a + G(b,c,d) + X[k] + T[i]) <<< s). */
             /* Do the following 16 operations. */
-            A = performRoundOperation(A, B, C, D, X[1], 5, 17, 2);
-            D = performRoundOperation(D, A, B, C, X[6], 9, 18, 2);
-            C = performRoundOperation(C, D, A, B, X[11], 14, 19, 2);
-            B = performRoundOperation(B, C, D, A, X[0], 20, 20, 2);
+            A = GG(A, B, C, D, X[1], 5, 17);
+            D = GG(D, A, B, C, X[6], 9, 18);
+            C = GG(C, D, A, B, X[11], 14, 19);
+            B = GG(B, C, D, A, X[0], 20, 20);
 
-            A = performRoundOperation(A, B, C, D, X[5], 5, 21, 2);
-            D = performRoundOperation(D, A, B, C, X[10], 9, 22, 2);
-            C = performRoundOperation(C, D, A, B, X[15], 14, 23, 2);
-            B = performRoundOperation(B, C, D, A, X[4], 20, 24, 2);
+            A = GG(A, B, C, D, X[5], 5, 21);
+            D = GG(D, A, B, C, X[10], 9, 22);
+            C = GG(C, D, A, B, X[15], 14, 23);
+            B = GG(B, C, D, A, X[4], 20, 24);
 
-            A = performRoundOperation(A, B, C, D, X[9], 5, 25, 2);
-            D = performRoundOperation(D, A, B, C, X[14], 9, 26, 2);
-            C = performRoundOperation(C, D, A, B, X[3], 14, 27, 2);
-            B = performRoundOperation(B, C, D, A, X[8], 20, 28, 2);
+            A = GG(A, B, C, D, X[9], 5, 25);
+            D = GG(D, A, B, C, X[14], 9, 26);
+            C = GG(C, D, A, B, X[3], 14, 27);
+            B = GG(B, C, D, A, X[8], 20, 28);
 
-            A = performRoundOperation(A, B, C, D, X[13], 5, 29, 2);
-            D = performRoundOperation(D, A, B, C, X[2], 9, 30, 2);
-            C = performRoundOperation(C, D, A, B, X[7], 14, 31, 2);
-            B = performRoundOperation(B, C, D, A, X[12], 20, 32, 2);
+            A = GG(A, B, C, D, X[13], 5, 29);
+            D = GG(D, A, B, C, X[2], 9, 30);
+            C = GG(C, D, A, B, X[7], 14, 31);
+            B = GG(B, C, D, A, X[12], 20, 32);
+
 
             /* Round 3. */
             /* Let [abcd k s t] denote the operation
                 a = b + ((a + H(b,c,d) + X[k] + T[i]) <<< s). */
             /* Do the following 16 operations. */
-            A = performRoundOperation(A, B, C, D, X[5], 4, 33, 3);
-            D = performRoundOperation(D, A, B, C, X[8], 11, 34, 3);
-            C = performRoundOperation(C, D, A, B, X[11], 16, 35, 3);
-            B = performRoundOperation(B, C, D, A, X[14], 23, 36, 3);
+            A = HH(A, B, C, D, X[5], 4, 33);
+            D = HH(D, A, B, C, X[8], 11, 34);
+            C = HH(C, D, A, B, X[11], 16, 35);
+            B = HH(B, C, D, A, X[14], 23, 36);
 
-            A = performRoundOperation(A, B, C, D, X[1], 4, 37, 3);
-            D = performRoundOperation(D, A, B, C, X[4], 11, 38, 3);
-            C = performRoundOperation(C, D, A, B, X[7], 16, 39, 3);
-            B = performRoundOperation(B, C, D, A, X[10], 23, 40, 3);
+            A = HH(A, B, C, D, X[1], 4, 37);
+            D = HH(D, A, B, C, X[4], 11, 38);
+            C = HH(C, D, A, B, X[7], 16, 39);
+            B = HH(B, C, D, A, X[10], 23, 40);
 
-            A = performRoundOperation(A, B, C, D, X[13], 4, 41, 3);
-            D = performRoundOperation(D, A, B, C, X[0], 11, 42, 3);
-            C = performRoundOperation(C, D, A, B, X[3], 16, 43, 3);
-            B = performRoundOperation(B, C, D, A, X[6], 23, 44, 3);
+            A = HH(A, B, C, D, X[13], 4, 41);
+            D = HH(D, A, B, C, X[0], 11, 42);
+            C = HH(C, D, A, B, X[3], 16, 43);
+            B = HH(B, C, D, A, X[6], 23, 44);
 
-            A = performRoundOperation(A, B, C, D, X[9], 4, 45, 3);
-            D = performRoundOperation(D, A, B, C, X[12], 11, 46, 3);
-            C = performRoundOperation(C, D, A, B, X[15], 16, 47, 3);
-            B = performRoundOperation(B, C, D, A, X[2], 23, 48, 3);
+            A = HH(A, B, C, D, X[9], 4, 45);
+            D = HH(D, A, B, C, X[12], 11, 46);
+            C = HH(C, D, A, B, X[15], 16, 47);
+            B = HH(B, C, D, A, X[2], 23, 48);
+
 
             /* Round 4. */
             /* Let [abcd k s t] denote the operation
                 a = b + ((a + I(b,c,d) + X[k] + T[i]) <<< s). */
             /* Do the following 16 operations. */
-            A = performRoundOperation(A, B, C, D, X[0], 6, 49, 4);
-            D = performRoundOperation(D, A, B, C, X[7], 10, 50, 4);
-            C = performRoundOperation(C, D, A, B, X[14], 15, 51, 4);
-            B = performRoundOperation(B, C, D, A, X[5], 21, 52, 4);
+            A = II(A, B, C, D, X[0], 6, 49);
+            D = II(D, A, B, C, X[7], 10, 50);
+            C = II(C, D, A, B, X[14], 15, 51);
+            B = II(B, C, D, A, X[5], 21, 52);
 
-            A = performRoundOperation(A, B, C, D, X[12], 6, 53, 4);
-            D = performRoundOperation(D, A, B, C, X[3], 10, 54, 4);
-            C = performRoundOperation(C, D, A, B, X[10], 15, 55, 4);
-            B = performRoundOperation(B, C, D, A, X[1], 21, 56, 4);
+            A = II(A, B, C, D, X[12], 6, 53);
+            D = II(D, A, B, C, X[3], 10, 54);
+            C = II(C, D, A, B, X[10], 15, 55);
+            B = II(B, C, D, A, X[1], 21, 56);
 
-            A = performRoundOperation(A, B, C, D, X[8], 6, 57, 4);
-            D = performRoundOperation(D, A, B, C, X[15], 10, 58, 4);
-            C = performRoundOperation(C, D, A, B, X[6], 15, 59, 4);
-            B = performRoundOperation(B, C, D, A, X[13], 21, 60, 4);
+            A = II(A, B, C, D, X[8], 6, 57);
+            D = II(D, A, B, C, X[15], 10, 58);
+            C = II(C, D, A, B, X[6], 15, 59);
+            B = II(B, C, D, A, X[13], 21, 60);
 
-            A = performRoundOperation(A, B, C, D, X[4], 6, 61, 4);
-            D = performRoundOperation(D, A, B, C, X[11], 10, 62, 4);
-            C = performRoundOperation(C, D, A, B, X[2], 15, 63, 4);
-            B = performRoundOperation(B, C, D, A, X[9], 21, 64, 4);
+            A = II(A, B, C, D, X[4], 6, 61);
+            D = II(D, A, B, C, X[11], 10, 62);
+            C = II(C, D, A, B, X[2], 15, 63);
+            B = II(B, C, D, A, X[9], 21, 64);
 
 
-
+            state[0] += A;
+            state[1] += B;
+            state[2] += C;
+            state[3] += D;
         }
-
-        throw new NotImplementedException();
+        return convertStateArrayToBytes(state);
     }
 
     //region Helper Methods
@@ -243,6 +237,7 @@ public class MD5 {
 
         // The message is "padded" (extended) so that its length (in bits) is
         // congruent to 448 (56 bytes), modulo 512 (64 bytes).
+        // TODO: Check on padding rules
         if (arr.length % 64 != 56) {
             int newArraySize = calcNewArrayLength(arr.length);
             byte[] newPaddedArr = new byte[newArraySize];
@@ -263,54 +258,76 @@ public class MD5 {
         }
     }
 
-    private int performRoundOperation(int a, int b, int c, int d, int x, int s, int t, int round) {
-        switch (round) {
-            /* Round 1 */
-            /* Let [abcd k s i] denote the operation
-                a = b + ((a + F(b,c,d) + X[k] + T[i]) <<< s). */
-            case 1:
-                a += F(b, c, d) + x + T[t];
-                a = rotationShiftLeft(a, s);
-                a += b;
-                break;
-
-            /* Round 2. */
-            /* Let [abcd k s i] denote the operation
-                a = b + ((a + G(b,c,d) + X[k] + T[i]) <<< s). */
-            case 2:
-                a += G(b, c, d) + x + T[t];
-                a = rotationShiftLeft(a, s);
-                a += b;
-                break;
-
-            /* Round 3. */
-            /* Let [abcd k s t] denote the operation
-                a = b + ((a + H(b,c,d) + X[k] + T[i]) <<< s). */
-            case 3:
-                a += H(b, c, d) + x + T[t];
-                a = rotationShiftLeft(a, s);
-                a += b;
-                break;
-
-            /* Round 4. */
-            /* Let [abcd k s t] denote the operation
-                a = b + ((a + I(b,c,d) + X[k] + T[i]) <<< s). */
-            case 4:
-                a += I(b, c, d) + x + T[t];
-                a = rotationShiftLeft(a, s);
-                a += b;
-                break;
-        }
+    //region Bit Manipulation Methods
+    private int FF(int a, int b, int c, int d, int x, int s, int t) {
+        a += F(b, c, d) + x + T[t];
+        a = rotationShiftLeft(a, s);
+        a += b;
 
         return a;
     }
 
+    private int GG(int a, int b, int c, int d, int x, int s, int t) {
+        a += G(b, c, d) + x + T[t];
+        a = rotationShiftLeft(a, s);
+        a += b;
+
+        return a;
+    }
+
+    private int HH(int a, int b, int c, int d, int x, int s, int t) {
+        a += H(b, c, d) + x + T[t];
+        a = rotationShiftLeft(a, s);
+        a += b;
+
+        return a;
+    }
+
+    private int II(int a, int b, int c, int d, int x, int s, int t) {
+        a += I(b, c, d) + x + T[t];
+        a = rotationShiftLeft(a, s);
+        a += b;
+
+        return a;
+    }
+    //endregion
+
     private int[] convertByteArrToIntArr(byte[] arr) {
-        throw new NotImplementedException();
+        int[] output = new int[(int)Math.ceil(arr.length/4.0)];
+        // Start at 0, with an offset of 4 (4 bytes per int)
+        int counter = 0;
+        for (int i = 0; i < output.length; i++) {
+            int word = 0x00000000;
+            word |= arr[i * 4 + 3] << 24;
+            word |= arr[i * 4 + 2] << 16;
+            word |= arr[i * 4 + 1] << 8;
+            word |= arr[i * 4];
+            output[i] = word;
+        }
+        return output;
     }
 
     private byte[] convertIntArrToByteArr(int[] arr) {
-        throw new NotImplementedException();
+        byte[] output = new byte[arr.length * 4];
+
+        for (int i = 0; i < arr.length; i++) {
+            int current = arr[i];
+            output[i * 4 + 3] = (byte) ((current & 0xFF000000) >> 24);
+            output[i * 4 + 2] = (byte) ((current & 0x00FF0000) >> 16);
+            output[i * 4 + 1] = (byte) ((current & 0x0000FF00) >> 8);
+            output[i * 4]     = (byte) ((current & 0x000000FF));
+        }
+        return output;
+    }
+
+    private byte[] convertStateArrayToBytes(int[] arr) {
+        byte[] bytes = convertIntArrToByteArr(arr);
+        byte[] output = new byte[bytes.length];
+        /* Reverse output */
+        for (int i = 0; i < output.length; i++) {
+            output[bytes.length - i - 1] = bytes[i];
+        }
+        return bytes;
     }
 
     private int calcNewArrayLength(int length) {
