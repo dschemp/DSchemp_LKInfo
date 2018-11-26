@@ -1,15 +1,13 @@
 package crypto.hash;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import static misc.BitManipulation.*;
 
 public class MD5 {
 
-    /* Global variables */
+    //region Global variables
     /**
      * Note that from the documentation and the code, there is NO offset.
-     * The 1 in the docs equal a 1 in code
+     * The 1 in the docs equals a 1 in code
      */
     private int[] T = new int[]{
             0x0, // offset word
@@ -30,55 +28,22 @@ public class MD5 {
             0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
             0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
     };
+    //endregion
 
+    //region Static Factory
     public static byte[] Hash(byte[] arr) {
         return new MD5().hash(arr);
     }
-
-    //region Bit Manipulation Methods
-    /*
-     * F(X,Y,Z) = XY v not(X) Z
-     * G(X,Y,Z) = XZ v Y not(Z)
-     * H(X,Y,Z) = X xor Y xor Z
-     * I(X,Y,Z) = Y xor (X v not(Z))
-     */
-    private int F(int x, int y, int z)
-    {
-        return (x & y | ~x & z);
-    }
-
-    private int G(int x, int y, int z)
-    {
-        return (x & z | y & ~z);
-    }
-
-    private int H(int x, int y, int z)
-    {
-        return (x ^ y ^ z);
-    }
-
-    private int I(int x, int y, int z)
-    {
-        return (y ^ (x & ~z));
-    }
     //endregion
 
-    /*
-     * Output:
-       The message digest produced as output is A, B, C, D. That is, we
-       begin with the low-order byte of A, and end with the high-order byte
-       of D.
-       This completes the description of MD5. A reference implementation in
-       C is given in the appendix.
-     */
-
     public byte[] hash(byte[] arr) {
+        // TODO: change endianness before padding
         arr = pad(arr);
 
         int[] hashArr = convertByteArrToIntArr(arr);
         byte[] hashedValue = hash(hashArr);
 
-        return hashedValue;
+        return hashedValue; // output is in little endian
     }
 
     private byte[] hash(int[] arr) {
@@ -219,7 +184,9 @@ public class MD5 {
         return convertStateArrayToBytes(state);
     }
 
-    //region Helper Methods
+    /*
+     * Helper Methods
+     */
 
     /* --- For Bit Manipulation: see misc.BitManipulation  */
 
@@ -287,6 +254,33 @@ public class MD5 {
     }
 
     //region Bit Manipulation Methods
+
+    /*
+     * F(X,Y,Z) = XY v not(X) Z
+     * G(X,Y,Z) = XZ v Y not(Z)
+     * H(X,Y,Z) = X xor Y xor Z
+     * I(X,Y,Z) = Y xor (X v not(Z))
+     */
+    private int F(int x, int y, int z)
+    {
+        return (x & y | ~x & z);
+    }
+
+    private int G(int x, int y, int z)
+    {
+        return (x & z | y & ~z);
+    }
+
+    private int H(int x, int y, int z)
+    {
+        return (x ^ y ^ z);
+    }
+
+    private int I(int x, int y, int z)
+    {
+        return (y ^ (x & ~z));
+    }
+
     private int FF(int a, int b, int c, int d, int x, int s, int t) {
         a += F(b, c, d) + x + T[t];
         a = rotationShiftLeft(a, s);
@@ -327,10 +321,10 @@ public class MD5 {
         int counter = 0;
         for (int i = 0; i < output.length; i++) {
             int word = 0x00000000;
-            word |= arr[i * 4 + 3] << 24;
-            word |= arr[i * 4 + 2] << 16;
-            word |= arr[i * 4 + 1] << 8;
-            word |= arr[i * 4];
+            word |= (arr[i * 4]     << 24);
+            word |= (arr[i * 4 + 1] << 16);
+            word |= (arr[i * 4 + 2] << 8);
+            word |= (arr[i * 4 + 3]);
             output[i] = word;
         }
         return output;
@@ -341,21 +335,26 @@ public class MD5 {
 
         for (int i = 0; i < arr.length; i++) {
             int current = arr[i];
-            output[i * 4 + 3] = (byte) ((current & 0xFF000000) >> 24);
-            output[i * 4 + 2] = (byte) ((current & 0x00FF0000) >> 16);
-            output[i * 4 + 1] = (byte) ((current & 0x0000FF00) >> 8);
-            output[i * 4]     = (byte) ((current & 0x000000FF));
+            output[i * 4]     = (byte) ((current & 0xFF000000) >> 24);
+            output[i * 4 + 1] = (byte) ((current & 0x00FF0000) >> 16);
+            output[i * 4 + 2] = (byte) ((current & 0x0000FF00) >> 8);
+            output[i * 4 + 3] = (byte) ((current & 0x000000FF));
         }
         return output;
     }
 
     private byte[] convertStateArrayToBytes(int[] arr) {
+        /*
+         * Output:
+            The message digest produced as output is A, B, C, D. That is, we
+            begin with the low-order byte of A, and end with the high-order byte
+            of D.
+            This completes the description of MD5. A reference implementation in
+            C is given in the appendix.
+        */
         byte[] bytes = convertIntArrToByteArr(arr);
-        byte[] output = new byte[bytes.length];
         /* Reverse output */
-        for (int i = 0; i < output.length; i++) {
-            output[bytes.length - i - 1] = bytes[i];
-        }
+
         return bytes;
     }
     //endregion
@@ -387,5 +386,4 @@ public class MD5 {
 
         return oldOutput;
     }
-    //endregion
 }
