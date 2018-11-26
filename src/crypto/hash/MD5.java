@@ -103,7 +103,7 @@ public class MD5 {
             int[] X = new int[16];
             /* Copy block i into X */
             // TODO: Replace with System.arraycopy
-            System.arraycopy(arr, i * 16, X, 0, Math.min(X.length, arr.length));
+            System.arraycopy(arr, i * 16, X, 0, X.length);
 
             int A = state[0],
                 B = state[1],
@@ -240,25 +240,26 @@ public class MD5 {
         // The message is "padded" (extended) so that its length (in bits) is
         // congruent to 448 (56 bytes), modulo 512 (64 bytes).
         // TODO: Check on padding rules
-        if (arr.length % 64 != 56) {
-            int newArraySize = calcNewArrayLength(arr.length);
-            byte[] newPaddedArr = new byte[newArraySize];
 
-            // copy already existing data into new padded array
-            System.arraycopy(arr, 0, newPaddedArr, 0, arr.length);
+        int newArraySize = calcNewArrayLength(arr.length);
+        byte[] newPaddedArr = new byte[newArraySize];
 
-            byte padByte = (byte)0x80; // first padding byte
-            for (int i = arr.length; i < newPaddedArr.length; i++) {
-                newPaddedArr[i] = padByte;  // pad first byte with 0x80
-                padByte = (byte)0x00;       // then set padbyte permanently to 0x00
-            }
+        // copy already existing data into new padded array
+        System.arraycopy(arr, 0, newPaddedArr, 0, arr.length);
 
-            // return newPaddedArr;
-        }
-        else { // Don't pad
-            // return arr;
+        byte padByte = (byte)0x80; // first padding byte
+        for (int i = arr.length; i < newPaddedArr.length; i++) {
+            newPaddedArr[i] = padByte;  // pad first byte with 0x80
+            padByte = (byte)0x00;       // then set padbyte permanently to 0x00
         }
 
+        int maxLength = (int)(Math.ceil(newPaddedArr.length / 64.0) * 64.0);
+        byte[] output = new byte[maxLength];
+
+        // Copy the data
+        System.arraycopy(newPaddedArr, 0, output, 0, newPaddedArr.length);
+
+        output = appendLength(arr.length, output);
         /*
 
         3.2 Step 2. Append Length
@@ -279,10 +280,10 @@ public class MD5 {
             Arrays gefüllt.
 
             simplified:
-            TODO: append original length in bits mod 264 to message
+            TODO: append original length in bits mod 2^64 to message
          */
 
-        throw new NotImplementedException();
+        return output;
     }
 
     //region Bit Manipulation Methods
@@ -319,6 +320,7 @@ public class MD5 {
     }
     //endregion
 
+    //region Conversion byte[] <-> int[]
     private int[] convertByteArrToIntArr(byte[] arr) {
         int[] output = new int[(int)Math.ceil(arr.length/4.0)];
         // Start at 0, with an offset of 4 (4 bytes per int)
@@ -356,12 +358,34 @@ public class MD5 {
         }
         return bytes;
     }
+    //endregion
 
     private int calcNewArrayLength(int length) {
+        if (length % 64 == 56)
+            return length + 56;
+
         while (length % 64 != 56) {
             length++;
         }
         return length;
+    }
+
+    private byte[] appendLength(long length, byte[] oldOutput) {
+        byte[] lengthOutput = new byte[8];
+
+        for (int i = 0; i < lengthOutput.length; i++) {
+            byte b = (byte)((length & ( 0xFF << (8 * i))) >> (8 * i));
+            lengthOutput[i] = b;
+        }
+
+        byte[] newOutput = new byte[lengthOutput.length];
+        for (int i = 0; i < lengthOutput.length; i++) {
+            newOutput[i] = lengthOutput[lengthOutput.length - i - 1];
+        }
+
+        System.arraycopy(newOutput, 0, oldOutput, oldOutput.length - 8, newOutput.length);
+
+        return oldOutput;
     }
     //endregion
 }
