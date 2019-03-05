@@ -48,4 +48,8 @@ public class Primzahlen {
         return primes;
     }
 
+    public static int[] Range(int max) {
+        return Range(2, max);
+    }
+
 }
