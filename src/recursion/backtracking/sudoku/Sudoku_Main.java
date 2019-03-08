@@ -45,11 +45,9 @@ public class Sudoku_Main {
                 {0, 0, 0,  0, 0, 0,  8, 0, 6}
         };
 
-        Sudoku_Feld feld = new Sudoku_Feld(feld3);
-        feld.FeldLoesen(0, 0, feld.feld);
-        int[][] geloestesFeld = feld.feld;
-
-        System.out.println(feld.toString());
+        SudokuSolver feld = new SudokuSolver(feld2);
+        int[][] geloestesFeld = feld.Solve();
+        SudokuSolver.PrettyPrintSudokuField(geloestesFeld);
     }
 
 }
